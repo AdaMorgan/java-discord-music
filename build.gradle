@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'pl.morgan'
+version = '1.0.0'
+
+sourceCompatibility = JavaVersion.VERSION_19
+targetCompatibility = JavaVersion.VERSION_19
+mainClassName = 'Application'
+
+repositories {
+    mavenCentral()
+
+    maven {
+        url 'https://jitpack.io'
+    }
+}
+
+dependencies {
+    implementation 'net.dv8tion:JDA:5.0.0-beta.8'
+    implementation 'com.github.walkyst:lavaplayer-fork:075a611'
+    implementation "com.github.TopiSenpai.LavaSrc:lavasrc:3.2.0"
+    implementation 'org.codehaus.groovy:groovy-all:3.0.11'
+
+    implementation 'com.moandjiezana.toml:toml4j:0.7.2'
+    implementation 'ch.qos.logback:logback-classic:1.4.6'
+
+
+    testImplementation platform('org.junit:junit-bom:5.9.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.register('runMain', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'pl.morgan.discordbot.main.Application'
+    args = ['config.toml']
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+wrapper {
+    gradleVersion '8.0'
+    distributionUrl distributionUrl.replace("bin", "all")
+}
