@@ -10,11 +10,12 @@ import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import pl.morgan.discordbot.music.TrackScheduler;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class PlayerMessageManager {
@@ -47,23 +48,27 @@ public class PlayerMessageManager {
 		return str.length() > 45 ? str.substring(0, 45) + "..." : str;
 	}
 
-	private String listQueue(List<? extends AudioTrack> queue, AudioTrack currentTrack) {
-		int currentTrackIndex = queue.indexOf(currentTrack);
-		int startIndex = Math.max(0, currentTrackIndex - 5);
-		int endIndex = Math.min(queue.size() -1, currentTrackIndex);
-		List<? extends AudioTrack> audioTracks = queue.subList(startIndex, endIndex + 1);
-
-		return audioTracks.stream()
-				.map(track -> (queue.indexOf(track) + 1) + "." + track.getInfo().title)
-				.collect(Collectors.joining("/n"));
+	private String listQueue(List<? extends AudioTrack> queue, AudioTrack track) {
+		return queue.stream()
+				.skip(queue.indexOf(track) + 1)
+				.limit(9)
+				.map(audioTrack -> String.format("%s. %s", queue.indexOf(audioTrack) + 1, subAudioTrackByName(audioTrack.getInfo().title)))
+				.collect(Collectors.joining("\n"));
 	}
+
+	private String historyQueue(List<? extends AudioTrack> queue, AudioTrack track) {
+		int startIndex = Math.max(0, queue.indexOf(track) - 9);
+		int endIndex = Math.min(queue.size(), queue.indexOf(track));
+		List<? extends AudioTrack> subList = queue.subList(startIndex, endIndex);
+		Collections.reverse(subList);
+		return IntStream.range(0, subList.size())
+				.mapToObj(index -> String.format("%s. %s", subList.size() - index + startIndex, subAudioTrackByName(subList.get(index).getInfo().title)))
+				.collect(Collectors.joining("\n"));}
 
 	public synchronized MessageEditData buildAudioMessage() {
 		AudioTrack track = scheduler.getPlayer().getPlayingTrack();
 
-		if (track == null) {
-			return MessageEditData.fromContent("Loading...");
-		}
+		if (track == null) return MessageEditData.fromContent("Loading...");
 
 		List<Button> buttons = Stream.of(
 				ButtonType.STOP.getButton(),
@@ -75,7 +80,8 @@ public class PlayerMessageManager {
 
 		EmbedBuilder embedBuilder = new EmbedBuilder()
 				.setTitle(track.getInfo().title, track.getInfo().uri)
-				.appendDescription(listQueue(scheduler.queue, track))
+				.addField("Queue:", listQueue(scheduler.queue, track), true)
+				.addField("History:", historyQueue(scheduler.queue, track), true)
 				.setThumbnail(track.getInfo().artworkUrl)
 				.setColor(scheduler.manager.app.config.getColor())
 				.setFooter(String.valueOf(scheduler.queue.size()));

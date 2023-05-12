@@ -80,8 +80,8 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	int currentIndex = 0;
 	public void nextAudio() {
-		currentIndex += 1;
 		Optional.ofNullable(this.queue.get(currentIndex)).ifPresentOrElse(player::playTrack, this::stopAudio);
+		currentIndex += 1;
 	}
 
 	public void resumeAudio() {

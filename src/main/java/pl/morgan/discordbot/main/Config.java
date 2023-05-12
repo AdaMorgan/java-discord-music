@@ -3,7 +3,7 @@ package pl.morgan.discordbot.main;
 import com.moandjiezana.toml.Toml;
 
 import java.awt.*;
-import java.io.FileReader;
+import java.io.*;
 
 public class Config {
 	private final Toml content;
@@ -15,9 +15,11 @@ public class Config {
 	public String getToken() {
 		return content.getString("discord.token");
 	}
+
 	public Color getColor() {
 		return Color.decode(content.getString("discord.color"));
 	}
+
 	public String getChannel() {
 		return content.getString("discord.channel");
 	}
@@ -25,6 +27,7 @@ public class Config {
 	public String getEmail() {
 		return content.getString("email.email");
 	}
+
 	public String getEmailPassword() {
 		return content.getString("email.password");
 	}
@@ -32,6 +35,7 @@ public class Config {
 	public String getSpotifyClientId() {
 		return content.getString("spotify.client.id");
 	}
+
 	public String getSpotifyClientSecret() {
 		return content.getString("spotify.client.secret");
 	}
