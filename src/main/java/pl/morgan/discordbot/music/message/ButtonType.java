@@ -8,13 +8,14 @@ public enum ButtonType {
 
 	RESUME("resume", EmojiType.RESUME),
 	NEXT("next", EmojiType.NEXT),
+	BACK("back", EmojiType.BACK),
 	ADD("add", EmojiType.ADD),
 	LOOP("loop", EmojiType.LOOP);
 
 	private final Button button;
 
 	ButtonType(String id, EmojiType emoji) {
-		this.button = Button.primary("music:" + id, emoji.fromFormatted());
+		this.button = Button.primary("music:" + id, id);
 	}
 
 	public Button getButton(boolean disabled) {

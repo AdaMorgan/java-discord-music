@@ -52,7 +52,7 @@ public class PlayerMessageManager {
 		return queue.stream()
 				.skip(queue.indexOf(track) + 1)
 				.limit(9)
-				.map(audioTrack -> String.format("%s. %s", queue.indexOf(audioTrack) + 1, subAudioTrackByName(audioTrack.getInfo().title)))
+				.map(audioTrack -> String.format("**%s**. %s", queue.indexOf(audioTrack) + 1, subAudioTrackByName(audioTrack.getInfo().title)))
 				.collect(Collectors.joining("\n"));
 	}
 
@@ -62,11 +62,13 @@ public class PlayerMessageManager {
 		List<? extends AudioTrack> subList = queue.subList(startIndex, endIndex);
 		Collections.reverse(subList);
 		return IntStream.range(0, subList.size())
-				.mapToObj(index -> String.format("%s. %s", subList.size() - index + startIndex, subAudioTrackByName(subList.get(index).getInfo().title)))
+				.mapToObj(index -> String.format("**%s**. %s", subList.size() - index + startIndex, subAudioTrackByName(subList.get(index).getInfo().title)))
 				.collect(Collectors.joining("\n"));}
 
 	public synchronized MessageEditData buildAudioMessage() {
 		AudioTrack track = scheduler.getPlayer().getPlayingTrack();
+
+		System.out.println(scheduler.currentIndex);
 
 		if (track == null) return MessageEditData.fromContent("Loading...");
 
@@ -75,7 +77,7 @@ public class PlayerMessageManager {
 				ButtonType.RESUME.getButton().withStyle(getStyle()).withLabel(getLabel()),
 				ButtonType.ADD.getButton(),
 				ButtonType.NEXT.getButton(scheduler.queue.size() == 0),
-				ButtonType.LOOP.getButton(scheduler.queue.indexOf(track) > 0)
+				ButtonType.BACK.getButton(scheduler.currentIndex == 0)
 		).toList();
 
 		EmbedBuilder embedBuilder = new EmbedBuilder()

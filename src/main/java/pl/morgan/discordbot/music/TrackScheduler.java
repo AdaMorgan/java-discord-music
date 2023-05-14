@@ -15,6 +15,8 @@ import pl.morgan.discordbot.music.message.PlayerMessageManager;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class TrackScheduler extends AudioEventAdapter {
 	private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(0);
@@ -29,6 +31,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	private final long owner;
 	public ScheduledFuture<?> future;
+	public int currentIndex = -1;
 
 	public TrackScheduler(Manager manager, AudioChannel channel, Member member) {
 		this.manager = manager;
@@ -78,10 +81,12 @@ public class TrackScheduler extends AudioEventAdapter {
 		this.manager.getPlayerManager().loadItem(url, new LoadResultHandler(this));
 	}
 
-	int currentIndex = 0;
 	public void nextAudio() {
-		Optional.ofNullable(this.queue.get(currentIndex)).ifPresentOrElse(player::playTrack, this::stopAudio);
-		currentIndex += 1;
+		Optional.ofNullable(this.queue.get(currentIndex += 1)).ifPresentOrElse(player::playTrack, this::stopAudio);
+	}
+
+	public void backAudio() {
+		Optional.ofNullable(this.queue.get(currentIndex -= 1)).ifPresentOrElse(player::playTrack, this::stopAudio);
 	}
 
 	public void resumeAudio() {

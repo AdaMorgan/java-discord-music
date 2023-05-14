@@ -11,6 +11,7 @@ public enum EmojiType {
     STOP("<:spotify:1098879199663628308>"),
     RESUME("<:spotify:1098879199663628308>"),
     NEXT("<:spotify:1098879199663628308>"),
+    BACK("<:spotify:1098879199663628308>"),
     ADD("<:spotify:1098879199663628308>"),
     LOOP("<:spotify:1098879199663628308>");
 

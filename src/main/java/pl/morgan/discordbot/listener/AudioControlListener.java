@@ -44,9 +44,13 @@ public class AudioControlListener extends ListenerAdapter {
 			case "resume" -> requireScheduler(event, TrackScheduler::resumeAudio);
 			case "next" -> requireScheduler(event, TrackScheduler::nextAudio);
 			case "add" -> event.replyModal(getAddModal()).queue();
+			case "back" -> requireScheduler(event, TrackScheduler::backAudio);
 		}
 
-		if(!event.isAcknowledged()) event.deferEdit().queue();
+		if(!event.isAcknowledged()) {
+			event.deferEdit().queue();
+			event.getHook().editOriginal("Новый текст сообщения").queue();
+		}
 	}
 
 	private void requireScheduler(IReplyCallback event, Consumer<TrackScheduler> handler) {
@@ -64,15 +68,13 @@ public class AudioControlListener extends ListenerAdapter {
 
 	@Override
 	public void onModalInteraction(@NotNull ModalInteractionEvent event) {
-        if(event.getModalId().equals("add-track")) {
+        if (event.getModalId().equals("add-track")) {
 			if (event.isAcknowledged()) return;
-
 			getScheduler(Objects.requireNonNull(event.getMember()), true).ifPresentOrElse(
                     scheduler -> scheduler.addAudio(event.getValue("url").getAsString()),
                     () -> event.reply("Cannot create audio connection").setEphemeral(true).queue()
             );
-
-			event.deferReply(true).flatMap(InteractionHook::deleteOriginal).queue();
+			event.deferEdit().queue();
         }
 	}
 
