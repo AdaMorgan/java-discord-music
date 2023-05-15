@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 public class Crypto {
+    //test
     private final String inputFile = "config.toml";
     private final String outputFile = "config.enc";
     private final String keyFile = "config.key";
