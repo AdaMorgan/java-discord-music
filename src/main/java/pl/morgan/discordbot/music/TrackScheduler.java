@@ -13,36 +13,35 @@ import pl.morgan.discordbot.music.handler.SendHandler;
 import pl.morgan.discordbot.music.message.PlayerMessageManager;
 
 import java.net.URI;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TrackScheduler extends AudioEventAdapter {
-	private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(0);
-
 	public final Manager manager;
 	private final AudioPlayer player;
 
 	private final long channel;
 	private final PlayerMessageManager message;
-
-	public final List<AudioTrack> queue;
-
 	private final long owner;
-	public ScheduledFuture<?> future;
-	public int currentIndex = -1;
+	private final AtomicInteger integer;
+
+	public HashMap<Comparable<?>, AudioTrack> queue;
+	public int currentIndex = 0;
 
 	public TrackScheduler(Manager manager, AudioChannel channel, Member member) {
 		this.manager = manager;
 		this.channel = channel.getIdLong();
 		this.owner = member.getIdLong();
+		this.integer = new AtomicInteger(1);
 
 		this.player = manager.createAudioPlayer(this);
 
 		this.message = new PlayerMessageManager(this);
 
-		this.queue = new ArrayList<>();
+		this.queue = new HashMap<>();
 
 		getAudioManager().openAudioConnection(channel);
 		channel.getGuild().getAudioManager().setSendingHandler(new SendHandler(player));
@@ -60,24 +59,25 @@ public class TrackScheduler extends AudioEventAdapter {
 		return this.player;
 	}
 
+	public Comparable<?> getKey(AudioTrack track) {
+		return queue.entrySet().stream()
+				.filter(entry -> entry.getValue().equals(track))
+				.map(Map.Entry::getKey)
+				.findFirst()
+				.orElse(null);
+	}
+
 	public long getOwner() {
 		return this.owner;
 	}
 
 	public void loadTrack(Collection<AudioTrack> tracks) {
-		this.queue.addAll(tracks);
+		tracks.forEach(track -> this.queue.put(integer.getAndIncrement(), track));
 		if (this.player.getPlayingTrack() == null) nextAudio();
-
 		message.update();
 	}
 
 	public void addAudio(String url) {
-		try {
-			new URI(url);
-		} catch(Exception e) {
-			url = "ytsearch: " + url; //If the provided string is not a valid url search on YouTube
-		}
-
 		this.manager.getPlayerManager().loadItem(url, new LoadResultHandler(this));
 	}
 
@@ -113,16 +113,11 @@ public class TrackScheduler extends AudioEventAdapter {
 	@Override
 	public void onTrackStart(AudioPlayer player, AudioTrack track) {
 		message.update();
-
-		if (future != null) { future.cancel(false); future = null; }
 	}
 
 	@Override
 	public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
 		if (endReason.mayStartNext) nextAudio();
-
-		if (player.getPlayingTrack() == null && this.queue.isEmpty())
-			future = EXECUTOR.schedule(this::stopAudio, 5, TimeUnit.MINUTES);
 	}
 
 	@Override

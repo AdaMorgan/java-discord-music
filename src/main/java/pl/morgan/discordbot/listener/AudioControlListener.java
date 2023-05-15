@@ -47,10 +47,7 @@ public class AudioControlListener extends ListenerAdapter {
 			case "back" -> requireScheduler(event, TrackScheduler::backAudio);
 		}
 
-		if(!event.isAcknowledged()) {
-			event.deferEdit().queue();
-			event.getHook().editOriginal("Новый текст сообщения").queue();
-		}
+		if(!event.isAcknowledged()) event.deferEdit().queue();
 	}
 
 	private void requireScheduler(IReplyCallback event, Consumer<TrackScheduler> handler) {
