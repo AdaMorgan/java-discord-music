@@ -12,23 +12,19 @@ import pl.morgan.discordbot.music.handler.LoadResultHandler;
 import pl.morgan.discordbot.music.handler.SendHandler;
 import pl.morgan.discordbot.music.message.PlayerMessageManager;
 
-import java.net.URI;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TrackScheduler extends AudioEventAdapter {
 	public final Manager manager;
-	private final AudioPlayer player;
+	public final AudioPlayer player;
 
 	private final long channel;
 	private final PlayerMessageManager message;
-	private final long owner;
+	public final long owner;
 	private final AtomicInteger integer;
 
-	public HashMap<Comparable<?>, AudioTrack> queue;
+	public HashMap<Integer, AudioTrack> queue;
 	public int currentIndex = 0;
 
 	public TrackScheduler(Manager manager, AudioChannel channel, Member member) {
@@ -36,11 +32,8 @@ public class TrackScheduler extends AudioEventAdapter {
 		this.channel = channel.getIdLong();
 		this.owner = member.getIdLong();
 		this.integer = new AtomicInteger(1);
-
 		this.player = manager.createAudioPlayer(this);
-
 		this.message = new PlayerMessageManager(this);
-
 		this.queue = new HashMap<>();
 
 		getAudioManager().openAudioConnection(channel);
@@ -59,16 +52,16 @@ public class TrackScheduler extends AudioEventAdapter {
 		return this.player;
 	}
 
+	public long getOwner() {
+		return this.owner;
+	}
+
 	public Comparable<?> getKey(AudioTrack track) {
 		return queue.entrySet().stream()
 				.filter(entry -> entry.getValue().equals(track))
 				.map(Map.Entry::getKey)
 				.findFirst()
 				.orElse(null);
-	}
-
-	public long getOwner() {
-		return this.owner;
 	}
 
 	public void loadTrack(Collection<AudioTrack> tracks) {
@@ -81,26 +74,22 @@ public class TrackScheduler extends AudioEventAdapter {
 		this.manager.getPlayerManager().loadItem(url, new LoadResultHandler(this));
 	}
 
+	private void playTrack(AudioTrack track) {
+		player.playTrack(track);
+	}
+
 	public void nextAudio() {
-		Optional.ofNullable(this.queue.get(currentIndex += 1)).ifPresentOrElse(player::playTrack, this::stopAudio);
+		Optional.ofNullable(this.queue.get(currentIndex += 1)).ifPresentOrElse(this::playTrack, this::stopAudio);
 	}
 
 	public void backAudio() {
-		Optional.ofNullable(this.queue.get(currentIndex -= 1)).ifPresentOrElse(player::playTrack, this::stopAudio);
+		Optional.ofNullable(this.queue.get(currentIndex -= 1)).ifPresentOrElse(this::playTrack, this::stopAudio);
 	}
 
-	public void resumeAudio() {
-		if (getPlayer().getPlayingTrack() != null) getPlayer().setPaused(!isPaused());
+	public void pauseAudio() {
+		if (player.getPlayingTrack() != null) player.setPaused(!player.isPaused());
 
 		message.update();
-	}
-
-	public boolean isPaused() {
-		return player.isPaused();
-	}
-
-	public void loopAudio(AudioTrack track) {
-		//player.startTrack(track.makeClone(), true);
 	}
 
 	public void stopAudio() {

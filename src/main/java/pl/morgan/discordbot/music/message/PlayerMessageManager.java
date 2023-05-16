@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PlayerMessageManager {
@@ -33,7 +34,7 @@ public class PlayerMessageManager {
 	public void cleanup() {
 		executor.shutdownNow();
 
-		if(scheduler.getChannel() instanceof MessageChannel channel) channel.deleteMessageById(message).queue();
+		if (scheduler.getChannel() instanceof MessageChannel channel) channel.deleteMessageById(message).queue();
 	}
 
 	public void update() {
@@ -45,13 +46,17 @@ public class PlayerMessageManager {
 	}
 
 	private String queue(boolean state) {
-		return "";
+		int startIndex = scheduler.currentIndex + (state ? 1 : -1); // получаем индекс начального трека
+		int endIndex = startIndex + (state ? 10 : -10); // получаем индекс конечного трека
+
+		return scheduler.queue.entrySet().stream()
+				.filter(entry -> entry.getKey() >= startIndex && entry.getKey() < endIndex)
+				.map(entry -> String.format("%s. %s", entry.getKey(), subAudioTrackByName(entry.getValue().getInfo().title)))
+				.collect(Collectors.joining("\n"));
 	}
 
 	public synchronized MessageEditData buildAudioMessage() {
-		AudioTrack track = scheduler.getPlayer().getPlayingTrack();
-
-		System.out.println(scheduler.currentIndex);
+		AudioTrack track = scheduler.player.getPlayingTrack();
 
 		if (track == null) return MessageEditData.fromContent("Loading...");
 
@@ -79,10 +84,10 @@ public class PlayerMessageManager {
 	}
 
 	private ButtonStyle getStyle() {
-		return scheduler.isPaused() ? ButtonStyle.SECONDARY : ButtonStyle.PRIMARY;
+		return scheduler.player.isPaused() ? ButtonStyle.SECONDARY : ButtonStyle.PRIMARY;
 	}
 
 	private String getLabel() {
-		return scheduler.isPaused() ? "PAUSE" : "PLAY";
+		return scheduler.player.isPaused() ? "PAUSE" : "PLAY";
 	}
 }

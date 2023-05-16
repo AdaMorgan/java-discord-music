@@ -2,11 +2,9 @@ package pl.morgan.discordbot.listener;
 
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
@@ -41,7 +39,7 @@ public class AudioControlListener extends ListenerAdapter {
 		switch(id[1]) {
 			case "start" -> event.replyModal(getStartModal()).queue();
 			case "stop" -> requireScheduler(event, TrackScheduler::stopAudio);
-			case "resume" -> requireScheduler(event, TrackScheduler::resumeAudio);
+			case "resume" -> requireScheduler(event, TrackScheduler::pauseAudio);
 			case "next" -> requireScheduler(event, TrackScheduler::nextAudio);
 			case "add" -> event.replyModal(getAddModal()).queue();
 			case "back" -> requireScheduler(event, TrackScheduler::backAudio);
@@ -53,7 +51,7 @@ public class AudioControlListener extends ListenerAdapter {
 	private void requireScheduler(IReplyCallback event, Consumer<TrackScheduler> handler) {
 		getScheduler(Objects.requireNonNull(event.getMember()), false).ifPresentOrElse(
 				controller -> {
-					if (event.getMember().getIdLong() != controller.getOwner()) {
+					if (event.getMember().getIdLong() != controller.owner) {
 						event.reply("You are not the owner of this player").setEphemeral(true).queue();
 						return;
 					}
