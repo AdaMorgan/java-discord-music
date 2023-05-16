@@ -75,15 +75,17 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	private void playTrack(AudioTrack track) {
-		player.playTrack(track);
+		player.playTrack(track.makeClone());
 	}
 
 	public void nextAudio() {
-		Optional.ofNullable(this.queue.get(currentIndex += 1)).ifPresentOrElse(this::playTrack, this::stopAudio);
+		Optional.ofNullable(this.queue.get(++currentIndex)).ifPresentOrElse(this::playTrack, this::stopAudio);
+		message.update();
 	}
 
 	public void backAudio() {
-		Optional.ofNullable(this.queue.get(currentIndex -= 1)).ifPresentOrElse(this::playTrack, this::stopAudio);
+		Optional.ofNullable(this.queue.get(--currentIndex)).ifPresentOrElse(this::playTrack, this::stopAudio);
+		message.update();
 	}
 
 	public void pauseAudio() {
