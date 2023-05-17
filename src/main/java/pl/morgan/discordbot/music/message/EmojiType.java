@@ -7,13 +7,16 @@ public enum EmojiType {
     SPOTIFY("<:spotify:1098879199663628308>"),
     SOUNDCLOUD("<:soundcloud:1098879198044639313>"),
 
-    START("<:spotify:1098879199663628308>"),
-    STOP("<:spotify:1098879199663628308>"),
-    RESUME("<:spotify:1098879199663628308>"),
-    NEXT("<:spotify:1098879199663628308>"),
-    BACK("<:spotify:1098879199663628308>"),
-    ADD("<:spotify:1098879199663628308>"),
-    LOOP("<:spotify:1098879199663628308>");
+    START("U+23EF"),
+    STOP("U+23F9"),
+    RESUME("U+25B6"),
+    PAUSE("U+23F8"),
+    NEXT("U+23E9"),
+    BACK("U+23EA"),
+    ADD("U+1F195"),
+    LOOP("U+1F501"),
+    SHUFFLE("U+1F500"),
+    EQUALIZER("U+1F39A");
 
     private final String code;
 
@@ -21,7 +24,7 @@ public enum EmojiType {
         this.code = code;
     }
 
-    public Emoji fromFormatted() {
-        return Emoji.fromFormatted(code);
+    public Emoji fromUnicode() {
+        return Emoji.fromUnicode(code);
     }
 }

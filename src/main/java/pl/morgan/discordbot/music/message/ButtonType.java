@@ -10,12 +10,14 @@ public enum ButtonType {
 	NEXT("next", EmojiType.NEXT),
 	BACK("back", EmojiType.BACK),
 	ADD("add", EmojiType.ADD),
-	LOOP("loop", EmojiType.LOOP);
+	LOOP("loop", EmojiType.LOOP),
+	SHUFFLE("shuffle", EmojiType.SHUFFLE),
+	EQUALIZER("equalizer", EmojiType.EQUALIZER);
 
 	private final Button button;
 
 	ButtonType(String id, EmojiType emoji) {
-		this.button = Button.primary("music:" + id, id);
+		this.button = Button.primary("music:" + id, emoji.fromUnicode());
 	}
 
 	public Button getButton(boolean disabled) {

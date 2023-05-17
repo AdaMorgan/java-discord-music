@@ -3,8 +3,8 @@ package pl.morgan.discordbot.music.message;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import pl.morgan.discordbot.music.TrackScheduler;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -69,14 +68,16 @@ public class PlayerMessageManager {
 
 		List<Button> buttons = Stream.of(
 				ButtonType.STOP.getButton(),
-				ButtonType.RESUME.getButton().withStyle(getStyle(scheduler.player.isPaused())).withLabel(getLabel()),
-				ButtonType.ADD.getButton(),
+				ButtonType.BACK.getButton(!beforeAudio()),
+				ButtonType.RESUME.getButton().withStyle(getStyle(scheduler.player.isPaused())).withEmoji(getEmoji()),
 				ButtonType.NEXT.getButton(!afterAudio()),
-				ButtonType.BACK.getButton(!beforeAudio())
+				ButtonType.ADD.getButton()
 		).toList();
 
 		List<Button> buttons1 = Stream.of(
-				ButtonType.LOOP.getButton().withStyle(getStyle(scheduler.isLooped()))
+				ButtonType.LOOP.getButton().withStyle(getStyle(!scheduler.isLooped())),
+				ButtonType.SHUFFLE.getButton(),
+				ButtonType.EQUALIZER.getButton()
 		).toList();
 
 		EmbedBuilder embedBuilder = new EmbedBuilder()
@@ -88,9 +89,8 @@ public class PlayerMessageManager {
 				.setFooter(String.valueOf(scheduler.queue.size()));
 
 		return new MessageEditBuilder()
-				.setContent("")
 				.setEmbeds(embedBuilder.build())
-				.setActionRow(buttons.toArray(new Button[0]))
+				.setComponents(ActionRow.of(buttons), ActionRow.of(buttons1))
 				.build();
 	}
 
@@ -106,7 +106,7 @@ public class PlayerMessageManager {
 		return state ? ButtonStyle.SECONDARY : ButtonStyle.PRIMARY;
 	}
 
-	private String getLabel() {
-		return scheduler.player.isPaused() ? "PAUSE" : "PLAY";
+	private Emoji getEmoji() {
+		return scheduler.player.isPaused() ? EmojiType.RESUME.fromUnicode() : EmojiType.PAUSE.fromUnicode();
 	}
 }

@@ -38,12 +38,14 @@ public class AudioControlListener extends ListenerAdapter {
 
 		switch(id[1]) {
 			case "start" -> event.replyModal(getStartModal()).queue();
-			case "stop" -> requireScheduler(event, TrackScheduler::stopAudio);
-			case "resume" -> requireScheduler(event, TrackScheduler::pauseAudio);
-			case "next" -> requireScheduler(event, TrackScheduler::nextAudio);
+			case "stop" -> requireScheduler(event, TrackScheduler::stop);
+			case "resume" -> requireScheduler(event, TrackScheduler::pause);
+			case "next" -> requireScheduler(event, TrackScheduler::next);
 			case "add" -> event.replyModal(getAddModal()).queue();
-			case "back" -> requireScheduler(event, TrackScheduler::backAudio);
-			case "loop" -> requireScheduler(event, TrackScheduler::loopAudio);
+			case "back" -> requireScheduler(event, TrackScheduler::back);
+			case "loop" -> requireScheduler(event, TrackScheduler::loop);
+			case "shuffle" -> requireScheduler(event, TrackScheduler::shuffle);
+//			case "equalizer" -> event.replyModal().queue();
 		}
 
 		if(!event.isAcknowledged()) event.deferEdit().queue();
@@ -66,8 +68,8 @@ public class AudioControlListener extends ListenerAdapter {
 	public void onModalInteraction(@NotNull ModalInteractionEvent event) {
         if (event.getModalId().equals("add-track")) {
 			if (event.isAcknowledged()) return;
-			getScheduler(Objects.requireNonNull(event.getMember()), true).ifPresentOrElse(
-                    scheduler -> scheduler.addAudio(event.getValue("url").getAsString()),
+			getScheduler(Objects.requireNonNull(event.getMember()), true)
+					.ifPresentOrElse(scheduler -> scheduler.add(event.getValue("url").getAsString()),
                     () -> event.reply("Cannot create audio connection").setEphemeral(true).queue()
             );
 			event.deferEdit().queue();

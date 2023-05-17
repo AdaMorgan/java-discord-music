@@ -4,8 +4,6 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import pl.morgan.discordbot.music.TrackScheduler;
 
 import java.util.ArrayList;
@@ -36,6 +34,6 @@ public class LoadResultHandler implements AudioLoadResultHandler {
 	@Override
 	public void loadFailed(FriendlyException exception) {
 		System.out.println(exception.getMessage());
-		this.queue.nextAudio();
+		this.queue.next();
 	}
 }
