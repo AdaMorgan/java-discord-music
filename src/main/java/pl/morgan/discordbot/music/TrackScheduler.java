@@ -26,6 +26,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public HashMap<Integer, AudioTrack> queue;
 	public int currentIndex = 0;
+	private boolean isLooped = false;
 
 	public TrackScheduler(Manager manager, AudioChannel channel, Member member) {
 		this.manager = manager;
@@ -51,12 +52,10 @@ public class TrackScheduler extends AudioEventAdapter {
 	public void loadTrack(Collection<AudioTrack> tracks) {
 		tracks.forEach(track -> this.queue.put(integer.getAndIncrement(), track));
 		if (this.player.getPlayingTrack() == null) nextAudio();
-		message.update();
 	}
 
 	public void addAudio(String url) {
 		this.manager.getPlayerManager().loadItem(url, new LoadResultHandler(this));
-		message.update();
 	}
 
 	private void playTrack(AudioTrack track) {
@@ -72,12 +71,21 @@ public class TrackScheduler extends AudioEventAdapter {
 		Optional.ofNullable(this.queue.get(--currentIndex)).ifPresentOrElse(this::playTrack, this::stopAudio);
 	}
 
-	public void loopAudio(boolean state) {
-		this.queue.get(currentIndex).makeClone();
+	public void loopAudio() {
+		if (player.getPlayingTrack() != null) this.setLooped(!isLooped);
+	}
+
+	private void setLooped(boolean state) {
+		isLooped = state;
+	}
+
+	public boolean isLooped() {
+		return isLooped;
 	}
 
 	public void pauseAudio() {
 		if (player.getPlayingTrack() != null) player.setPaused(!player.isPaused());
+		message.update();
 	}
 
 	public void stopAudio() {
