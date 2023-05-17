@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import pl.morgan.discordbot.music.TrackScheduler;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -55,35 +54,35 @@ public class PlayerMessageManager {
 				.collect(Collectors.joining("\n"));
 	}
 
-	public synchronized MessageEditData buildAudioMessage() {
+	private synchronized MessageEditData buildAudioMessage() {
 		AudioTrack track = scheduler.player.getPlayingTrack();
 
-		if (track == null)
-			return MessageEditData.fromContent("Loading...");
-		else
-			return MessageEditData.fromContent("Loaded!");
+		if (track == null) return MessageEditData.fromContent("Loading...");
 
-//		List<Button> buttons = Stream.of(
-//				ButtonType.STOP.getButton(),
-//				ButtonType.RESUME.getButton().withStyle(getStyle()).withLabel(getLabel()),
-//				ButtonType.ADD.getButton(),
-//				ButtonType.NEXT.getButton(scheduler.queue.size() == 0),
-//				ButtonType.BACK.getButton(scheduler.getKey(track).equals(1))
-//		).toList();
-//
-//		EmbedBuilder embedBuilder = new EmbedBuilder()
-//				.setTitle(track.getInfo().title, track.getInfo().uri)
-//				.addField("Queue:", queue(true), true)
-//				.addField("History:", queue(false), true)
-//				.setThumbnail(track.getInfo().artworkUrl)
-//				.setColor(scheduler.manager.app.config.getColor())
-//				.setFooter(String.valueOf(scheduler.queue.size()));
-//
-//		return new MessageEditBuilder()
-//				.setContent("")
-//				.setEmbeds(embedBuilder.build())
-//				.setActionRow(buttons.toArray(new Button[0]))
-//				.build();
+		List<Button> buttons = Stream.of(
+				ButtonType.STOP.getButton(),
+				ButtonType.RESUME.getButton().withStyle(getStyle()).withLabel(getLabel()),
+				ButtonType.ADD.getButton(),
+				ButtonType.NEXT.getButton(scheduler.queue.size() == 0),
+				ButtonType.BACK.getButton(scheduler.currentIndex == 1)
+		).toList();
+
+		System.out.println(scheduler.currentIndex);
+
+
+		EmbedBuilder embedBuilder = new EmbedBuilder()
+				.setTitle(track.getInfo().title, track.getInfo().uri)
+				.addField("Queue:", queue(true), true)
+				.addField("History:", queue(false), true)
+				.setThumbnail(track.getInfo().artworkUrl)
+				.setColor(scheduler.manager.app.config.getColor())
+				.setFooter(String.valueOf(scheduler.queue.size()));
+
+		return new MessageEditBuilder()
+				.setContent("")
+				.setEmbeds(embedBuilder.build())
+				.setActionRow(buttons.toArray(new Button[0]))
+				.build();
 	}
 
 	private ButtonStyle getStyle() {

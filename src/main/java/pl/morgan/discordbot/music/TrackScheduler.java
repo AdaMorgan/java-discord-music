@@ -48,14 +48,6 @@ public class TrackScheduler extends AudioEventAdapter {
 		return manager.app.jda.getChannelById(AudioChannel.class, channel);
 	}
 
-	public Comparable<?> getKey(AudioTrack track) {
-		return queue.entrySet().stream()
-				.filter(entry -> entry.getValue().equals(track))
-				.map(Map.Entry::getKey)
-				.findFirst()
-				.orElse(null);
-	}
-
 	public void loadTrack(Collection<AudioTrack> tracks) {
 		tracks.forEach(track -> this.queue.put(integer.getAndIncrement(), track));
 		if (this.player.getPlayingTrack() == null) nextAudio();
