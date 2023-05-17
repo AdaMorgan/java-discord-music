@@ -48,27 +48,18 @@ public class PlayerMessageManager {
 		return str.length() > 45 ? str.substring(0, 45) + "..." : str;
 	}
 
-	private String queue(boolean state) {
-		int startIndex;
-		int endIndex;
+	private String queue() {
+		return scheduler.queue.entrySet().stream()
+				.filter(entry -> entry.getKey() >= scheduler.currentIndex + 1 && entry.getKey() < scheduler.currentIndex + 11)
+				.map(entry -> String.format("**%d**. %s", entry.getKey(), subAudioTrackByName(entry.getValue().getInfo().title)))
+				.collect(Collectors.joining("\n"));
+	}
 
-		if (state) {
-			startIndex = scheduler.currentIndex + 1;
-			endIndex = startIndex + 10;
-		} else {
-			startIndex = scheduler.currentIndex - 10;
-			endIndex = scheduler.currentIndex;
-		}
-
-		Stream<String> list = scheduler.queue.entrySet().stream()
-				.filter(entry -> entry.getKey() >= startIndex && entry.getKey() < endIndex)
-				.map(entry -> String.format("**%d**. %s", entry.getKey(), subAudioTrackByName(entry.getValue().getInfo().title)));
-
-		if (state)
-			return list.collect(Collectors.joining("\n"));
-		else {
-			return list.sorted(Collections.reverseOrder()).collect(Collectors.joining("\n"));
-		}
+	private String history() {
+		return scheduler.queue.entrySet().stream()
+				.filter(entry -> entry.getKey() >= scheduler.currentIndex - 10 && entry.getKey() < scheduler.currentIndex)
+				.map(entry -> String.format("**%d**. %s", entry.getKey(), subAudioTrackByName(entry.getValue().getInfo().title)))
+				.sorted(Collections.reverseOrder()).collect(Collectors.joining("\n"));
 	}
 
 	private synchronized MessageEditData buildAudioMessage() {
@@ -80,8 +71,8 @@ public class PlayerMessageManager {
 				ButtonType.STOP.getButton(),
 				ButtonType.RESUME.getButton().withStyle(getStyle(scheduler.player.isPaused())).withLabel(getLabel()),
 				ButtonType.ADD.getButton(),
-				ButtonType.NEXT.getButton(scheduler.queue.size() == 0),
-				ButtonType.BACK.getButton(scheduler.currentIndex == 1)
+				ButtonType.NEXT.getButton(!afterAudio()),
+				ButtonType.BACK.getButton(!beforeAudio())
 		).toList();
 
 		List<Button> buttons1 = Stream.of(
@@ -90,8 +81,8 @@ public class PlayerMessageManager {
 
 		EmbedBuilder embedBuilder = new EmbedBuilder()
 				.setTitle(track.getInfo().title, track.getInfo().uri)
-				.addField("Queue:", queue(true), true)
-				.addField("History:", queue(false), true)
+				.addField("Queue:", queue(), true)
+				.addField("History:", history(), true)
 				.setThumbnail(track.getInfo().artworkUrl)
 				.setColor(scheduler.manager.app.config.getColor())
 				.setFooter(String.valueOf(scheduler.queue.size()));
@@ -101,6 +92,14 @@ public class PlayerMessageManager {
 				.setEmbeds(embedBuilder.build())
 				.setActionRow(buttons.toArray(new Button[0]))
 				.build();
+	}
+
+	private boolean beforeAudio() {
+		return scheduler.queue.keySet().stream().anyMatch(trackId -> trackId < scheduler.currentIndex);
+	}
+
+	private boolean afterAudio() {
+		return scheduler.queue.keySet().stream().anyMatch(trackId -> trackId > scheduler.currentIndex);
 	}
 
 	private ButtonStyle getStyle(boolean state) {

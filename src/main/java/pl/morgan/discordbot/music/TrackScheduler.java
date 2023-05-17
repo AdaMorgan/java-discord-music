@@ -90,14 +90,18 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public void stopAudio() {
 		getAudioManager().closeAudioConnection();
-		message.cleanup();
-
 		this.manager.controllers.remove(getChannel().getGuild().getIdLong());
+		message.cleanup();
+	}
+
+	private void remove() {
+		this.queue.entrySet().removeIf(entry -> entry.getKey() == currentIndex - 11);
 	}
 
 	@Override
 	public void onTrackStart(AudioPlayer player, AudioTrack track) {
 		message.update();
+		remove();
 	}
 
 	@Override
