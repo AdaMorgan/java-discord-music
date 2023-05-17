@@ -48,14 +48,6 @@ public class TrackScheduler extends AudioEventAdapter {
 		return manager.app.jda.getChannelById(AudioChannel.class, channel);
 	}
 
-	public AudioPlayer getPlayer() {
-		return this.player;
-	}
-
-	public long getOwner() {
-		return this.owner;
-	}
-
 	public Comparable<?> getKey(AudioTrack track) {
 		return queue.entrySet().stream()
 				.filter(entry -> entry.getValue().equals(track))
@@ -72,26 +64,28 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public void addAudio(String url) {
 		this.manager.getPlayerManager().loadItem(url, new LoadResultHandler(this));
+		message.update();
 	}
 
 	private void playTrack(AudioTrack track) {
 		player.playTrack(track.makeClone());
+		message.update();
 	}
 
 	public void nextAudio() {
 		Optional.ofNullable(this.queue.get(++currentIndex)).ifPresentOrElse(this::playTrack, this::stopAudio);
-		message.update();
 	}
 
 	public void backAudio() {
 		Optional.ofNullable(this.queue.get(--currentIndex)).ifPresentOrElse(this::playTrack, this::stopAudio);
-		message.update();
+	}
+
+	public void loopAudio(boolean state) {
+		this.queue.get(currentIndex).makeClone();
 	}
 
 	public void pauseAudio() {
 		if (player.getPlayingTrack() != null) player.setPaused(!player.isPaused());
-
-		message.update();
 	}
 
 	public void stopAudio() {
