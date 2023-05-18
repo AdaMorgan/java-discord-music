@@ -7,6 +7,8 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.managers.AudioManager;
 import pl.morgan.discordbot.music.handler.LoadResultHandler;
 import pl.morgan.discordbot.music.handler.SendHandler;
@@ -25,6 +27,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	private final PlayerMessageManager message;
 	public final long owner;
 	private final AtomicInteger integer;
+	public Equalizer equalizer;
 
 	public HashMap<Integer, AudioTrack> queue;
 	public int currentIndex = 0;
@@ -38,6 +41,7 @@ public class TrackScheduler extends AudioEventAdapter {
 		this.player = manager.createAudioPlayer(this);
 		this.message = new PlayerMessageManager(this);
 		this.queue = new HashMap<>();
+		this.equalizer = new Equalizer(this);
 
 		getAudioManager().openAudioConnection(channel);
 		channel.getGuild().getAudioManager().setSendingHandler(new SendHandler(player));
@@ -75,6 +79,10 @@ public class TrackScheduler extends AudioEventAdapter {
 	public void loop() {
 		if (player.getPlayingTrack() != null) this.setLooped(!isLooped);
 		message.update();
+	}
+
+	public void equalizer() {
+		equalizer.setGain();
 	}
 
 	private void setLooped(boolean state) {

@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.JDA;
  import net.dv8tion.jda.api.requests.GatewayIntent;
  import pl.morgan.discordbot.listener.AudioControlListener;
  import pl.morgan.discordbot.listener.StartupListener;
+import pl.morgan.discordbot.music.Equalizer;
 import pl.morgan.discordbot.music.Manager;
 
 

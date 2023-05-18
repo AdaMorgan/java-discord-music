@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 import pl.morgan.discordbot.main.Application;
+import pl.morgan.discordbot.music.Equalizer;
 import pl.morgan.discordbot.music.TrackScheduler;
 
 import java.util.Objects;
@@ -20,6 +21,7 @@ import java.util.function.Consumer;
 public class AudioControlListener extends ListenerAdapter {
 	private final Application app;
 
+	private Equalizer equalizer;
 	public AudioControlListener(Application app) {
 		this.app = app;
 	}
@@ -45,7 +47,7 @@ public class AudioControlListener extends ListenerAdapter {
 			case "back" -> requireScheduler(event, TrackScheduler::back);
 			case "loop" -> requireScheduler(event, TrackScheduler::loop);
 			case "shuffle" -> requireScheduler(event, TrackScheduler::shuffle);
-//			case "equalizer" -> event.replyModal().queue();
+			case "equalizer" -> requireScheduler(event, TrackScheduler::equalizer);
 		}
 
 		if(!event.isAcknowledged()) event.deferEdit().queue();
@@ -83,26 +85,22 @@ public class AudioControlListener extends ListenerAdapter {
 //							.ifPresent(TrackScheduler::stopAudio);
 //	}
 
-	@SuppressWarnings("SameParameterValue")
-	private TextInput setAction(final String id, final String label, final TextInputStyle style, final int min, final int max, final boolean required, final String place) {
-		return TextInput.create(id, label, style)
-				.setMinLength(min)
-				.setMaxLength(max)
-				.setRequired(required)
-				.setPlaceholder(place)
+	public Modal getAddModal() {
+		return Modal.create("add-track", "Add a new track")
+				.addActionRow(InputData.create("url", "Query", TextInputStyle.SHORT, 0, 100, true, "URL or search term(s)").build())
 				.build();
 	}
 
-
-	public Modal getAddModal() {
-		return Modal.create("add-track", "Add a new track")
-				.addActionRow(setAction("url", "Query", TextInputStyle.SHORT, 0, 100, true, "URL or search term(s)"))
+	public Modal getEqualizerModal() {
+		return Modal.create("equalizer-modal", "change audio recording audio track")
+				.addActionRow(InputData.create("band1", "band1", TextInputStyle.SHORT, 0, 100, true, "bland1").build())
+				.addActionRow(InputData.create("band2", "band2", TextInputStyle.SHORT, 0, 100, true, "bland2").build())
 				.build();
 	}
 
 	public Modal getStartModal() {
 		return Modal.create("add-track", "Open connection")
-				.addActionRow(setAction("url", "Query", TextInputStyle.SHORT, 0, 100, true, "URL or search term(s)"))
+				.addActionRow(InputData.create("url", "Query", TextInputStyle.SHORT, 0, 100, true, "URL or search term(s)").build())
 				.build();
 	}
 }

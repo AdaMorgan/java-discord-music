@@ -37,7 +37,7 @@ public class StartupListener extends ListenerAdapter {
 					.forEach(message -> message.delete().queue()));
 
 			channel.sendMessageEmbeds(getEmbedMenu().build())
-					.setActionRow(ButtonType.START.getButton())
+					.setActionRow(ButtonType.START.getButton(), ButtonType.ACCESS.getButton())
 					.queue();
 		});
 	}

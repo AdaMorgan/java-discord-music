@@ -8,6 +8,8 @@ public enum EmojiType {
     SOUNDCLOUD("<:soundcloud:1098879198044639313>"),
 
     START("U+23EF"),
+    PRIVATE("U+1F464"),
+    PUBLIC("U+1F465"),
     STOP("U+23F9"),
     RESUME("U+25B6"),
     PAUSE("U+23F8"),
