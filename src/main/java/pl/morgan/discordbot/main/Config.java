@@ -2,8 +2,7 @@ package pl.morgan.discordbot.main;
 
 import com.moandjiezana.toml.Toml;
 
-import java.awt.*;
-import java.io.*;
+import java.io.FileReader;
 
 public class Config {
 	private final Toml content;
@@ -14,10 +13,6 @@ public class Config {
 
 	public String getToken() {
 		return content.getString("discord.token");
-	}
-
-	public Color getColor() {
-		return Color.decode(content.getString("discord.color"));
 	}
 
 	public String getChannel() {

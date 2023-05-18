@@ -7,8 +7,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.managers.AudioManager;
 import pl.morgan.discordbot.music.handler.LoadResultHandler;
 import pl.morgan.discordbot.music.handler.SendHandler;
@@ -25,7 +23,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	private final long channel;
 	private final PlayerMessageManager message;
-	public final long owner;
+	public final Member owner;
 	private final AtomicInteger integer;
 	public Equalizer equalizer;
 
@@ -36,7 +34,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	public TrackScheduler(Manager manager, AudioChannel channel, Member member) {
 		this.manager = manager;
 		this.channel = channel.getIdLong();
-		this.owner = member.getIdLong();
+		this.owner = member;
 		this.integer = new AtomicInteger(1);
 		this.player = manager.createAudioPlayer(this);
 		this.message = new PlayerMessageManager(this);
@@ -82,7 +80,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	public void equalizer() {
-		equalizer.setGain();
+
 	}
 
 	private void setLooped(boolean state) {
@@ -110,6 +108,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	public void stop() {
 		getAudioManager().closeAudioConnection();
 		this.manager.controllers.remove(getChannel().getGuild().getIdLong());
+		message.update();
 		message.cleanup();
 	}
 

@@ -9,15 +9,20 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import pl.morgan.discordbot.main.Application;
 import pl.morgan.discordbot.music.message.ButtonType;
+import pl.morgan.discordbot.music.message.ColorType;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class StartupListener extends ListenerAdapter {
 
 	private final Application app;
+	public Map<Long, Long> message;
 
 	public StartupListener(Application app) {
 		this.app = app;
+		this.message = new HashMap<>();
 	}
 
 	@Override
@@ -32,13 +37,13 @@ public class StartupListener extends ListenerAdapter {
 
 	private void setupGuild(Guild guild) {
 		performForChannel(guild, channel -> {
-			channel.getIterableHistory().queue(messages -> messages.stream()
-					.filter(message -> message.getEmbeds().size() > 0)
-					.forEach(message -> message.delete().queue()));
+//			channel.getIterableHistory().queue(messages -> messages.stream()
+//					.filter(message -> message.getEmbeds().size() > 0)
+//					.forEach(message -> message.delete().queue()));
 
 			channel.sendMessageEmbeds(getEmbedMenu().build())
-					.setActionRow(ButtonType.START.getButton(), ButtonType.ACCESS.getButton())
-					.queue();
+					.setActionRow(ButtonType.START.getButton(false), ButtonType.ACCESS.getButton(true))
+					.queue(message -> this.message.put(guild.getIdLong(), message.getIdLong()));
 		});
 	}
 
@@ -51,7 +56,7 @@ public class StartupListener extends ListenerAdapter {
 
 	private EmbedBuilder getEmbedMenu() {
 		return new EmbedBuilder()
-				.setColor(app.config.getColor())
+				.setColor(ColorType.PRIMARY.toColor())
 				.setDescription("MENU");
 	}
 }

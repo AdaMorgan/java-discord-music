@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
@@ -56,7 +55,7 @@ public class AudioControlListener extends ListenerAdapter {
 	private void requireScheduler(IReplyCallback event, Consumer<TrackScheduler> handler) {
 		getScheduler(Objects.requireNonNull(event.getMember()), false).ifPresentOrElse(
 				controller -> {
-					if (event.getMember().getIdLong() != controller.owner) {
+					if (event.getMember().getIdLong() != controller.owner.getIdLong()) {
 						event.reply("You are not the owner of this player").setEphemeral(true).queue();
 						return;
 					}
