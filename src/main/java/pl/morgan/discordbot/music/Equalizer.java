@@ -4,7 +4,7 @@ import com.sedmelluq.discord.lavaplayer.filter.equalizer.EqualizerFactory;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
-import pl.morgan.discordbot.listener.InputData;
+import pl.morgan.discordbot.listener.TextInputUtils;
 
 public class Equalizer {
     private final EqualizerFactory factory;
@@ -32,8 +32,8 @@ public class Equalizer {
 
     public Modal modal() {
         return Modal.create("equalizer-modal", "change audio recording audio track")
-                .addActionRow(InputData.create("band1", "band1", TextInputStyle.SHORT, 0, 100, true, String.valueOf(band1)).build())
-                .addActionRow(InputData.create("band2", "band2", TextInputStyle.SHORT, 0, 100, true, String.valueOf(band2)).build())
+                .addActionRow(TextInputUtils.build("band1", "band1", TextInputStyle.SHORT, 0, 100, true, String.valueOf(band1)))
+                .addActionRow(TextInputUtils.build("band2", "band2", TextInputStyle.SHORT, 0, 100, true, String.valueOf(band2)))
                 .build();
     }
 }

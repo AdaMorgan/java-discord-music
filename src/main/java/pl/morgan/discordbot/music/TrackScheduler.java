@@ -13,9 +13,6 @@ import pl.morgan.discordbot.music.handler.SendHandler;
 import pl.morgan.discordbot.music.message.PlayerMessageManager;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class TrackScheduler extends AudioEventAdapter {
 	public final Manager manager;
@@ -23,26 +20,26 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	private final long channel;
 	private final PlayerMessageManager message;
-	public final Member owner;
-	private final AtomicInteger integer;
+	public final Long owner;
 	public Equalizer equalizer;
 
-	public HashMap<Integer, AudioTrack> queue;
+	public List<AudioTrack> queue;
 	public int currentIndex = 0;
-	private boolean looped, access = false;
+	private boolean looped = false;
 
 	public TrackScheduler(Manager manager, AudioChannel channel, Member member) {
 		this.manager = manager;
 		this.channel = channel.getIdLong();
-		this.owner = member;
-		this.integer = new AtomicInteger(1);
+		this.owner = member == null ? null : member.getIdLong();
 		this.player = manager.createAudioPlayer(this);
 		this.message = new PlayerMessageManager(this);
-		this.queue = new HashMap<>();
+		this.queue = new LinkedList<>();
 		this.equalizer = new Equalizer(this);
 
 		getAudioManager().openAudioConnection(channel);
 		channel.getGuild().getAudioManager().setSendingHandler(new SendHandler(player));
+
+		manager.app.startup.updateMessage(channel.getGuild());
 	}
 
 	private AudioManager getAudioManager() {
@@ -53,8 +50,12 @@ public class TrackScheduler extends AudioEventAdapter {
 		return manager.app.jda.getChannelById(AudioChannel.class, channel);
 	}
 
+	public Member getOwner() {
+		return owner == null ? null : getChannel().getGuild().getMemberById(owner);
+	}
+
 	public void loadTrack(Collection<AudioTrack> tracks) {
-		tracks.forEach(track -> this.queue.put(integer.getAndIncrement(), track));
+		this.queue.addAll(tracks);
 		if (this.player.getPlayingTrack() == null) next();
 	}
 
@@ -67,37 +68,50 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	public void next() {
-		Optional.ofNullable(this.queue.get(++currentIndex)).ifPresentOrElse(this::playTrack, this::stop);
+		currentIndex++;
+
+		if(currentIndex >= queue.size()) {
+			if(looped) {
+				currentIndex = 0;
+			}
+
+			else {
+				stop();
+				return;
+			}
+		}
+
+		playTrack(queue.get(currentIndex));
 	}
 
 	public void back() {
-		Optional.ofNullable(this.queue.get(--currentIndex)).ifPresentOrElse(this::playTrack, this::stop);
+		currentIndex--;
+
+		if(currentIndex < 0) {
+			if(looped) {
+				currentIndex = queue.size() - 1;
+			}
+
+			else {
+				stop();
+				return;
+			}
+		}
+
+		playTrack(queue.get(currentIndex));
 	}
 
 	public void equalizer() {
 
 	}
 
-	public void access() {
-		if (this.owner != null) this.setAccess(!access);
-		message.update();
-	}
-
-	private void setAccess(boolean state) {
-		access = state;
-	}
-
-	public boolean isAccess() {
-		return access;
-	}
-
-	public void looped() {
+	public void loop() {
 		if (player.getPlayingTrack() != null) this.setLooped(!looped);
-		message.update();
 	}
 
 	private void setLooped(boolean state) {
 		looped = state;
+		message.update();
 	}
 
 	public boolean isLooped() {
@@ -105,12 +119,8 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	public void shuffle() {
-		List<AudioTrack> tracks = new ArrayList<>(queue.values());
-		Collections.shuffle(tracks);
-		List<Integer> keys = new ArrayList<>(queue.keySet());
-		queue = IntStream.range(0, queue.size())
-				.boxed()
-				.collect(Collectors.toMap(keys::get, tracks::get, (key, value) -> value, LinkedHashMap::new));
+		Collections.shuffle(queue);
+		message.update();
 	}
 
 	public void pause() {
@@ -121,17 +131,13 @@ public class TrackScheduler extends AudioEventAdapter {
 	public void stop() {
 		getAudioManager().closeAudioConnection();
 		this.manager.controllers.remove(getChannel().getGuild().getIdLong());
-		message.update();
 		message.cleanup();
-	}
 
-	private void remove() {
-		this.queue.entrySet().removeIf(entry -> entry.getKey() == currentIndex - 11);
+		manager.app.startup.updateMessage(getChannel().getGuild());
 	}
 
 	@Override
 	public void onTrackStart(AudioPlayer player, AudioTrack track) {
-		remove();
 		message.update();
 	}
 

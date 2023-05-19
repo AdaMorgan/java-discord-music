@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 import pl.morgan.discordbot.main.Application;
-import pl.morgan.discordbot.music.Equalizer;
 import pl.morgan.discordbot.music.TrackScheduler;
 
 import java.util.Objects;
@@ -20,7 +19,6 @@ import java.util.function.Consumer;
 public class AudioControlListener extends ListenerAdapter {
 	private final Application app;
 
-	private Equalizer equalizer;
 	public AudioControlListener(Application app) {
 		this.app = app;
 	}
@@ -39,13 +37,12 @@ public class AudioControlListener extends ListenerAdapter {
 
 		switch(id[1]) {
 			case "start" -> event.replyModal(getStartModal()).queue();
-			case "access" -> requireScheduler(event, TrackScheduler::access);
 			case "stop" -> requireScheduler(event, TrackScheduler::stop);
 			case "resume" -> requireScheduler(event, TrackScheduler::pause);
 			case "next" -> requireScheduler(event, TrackScheduler::next);
 			case "add" -> event.replyModal(getAddModal()).queue();
 			case "back" -> requireScheduler(event, TrackScheduler::back);
-			case "loop" -> requireScheduler(event, TrackScheduler::looped);
+			case "loop" -> requireScheduler(event, TrackScheduler::loop);
 			case "shuffle" -> requireScheduler(event, TrackScheduler::shuffle);
 			case "equalizer" -> requireScheduler(event, TrackScheduler::equalizer);
 		}
@@ -56,7 +53,7 @@ public class AudioControlListener extends ListenerAdapter {
 	private void requireScheduler(IReplyCallback event, Consumer<TrackScheduler> handler) {
 		getScheduler(Objects.requireNonNull(event.getMember()), false).ifPresentOrElse(
 				controller -> {
-					if (event.getMember().getIdLong() != controller.owner.getIdLong() && !controller.isAccess()) {
+					if (controller.owner != null && event.getMember().getIdLong() != controller.owner) {
 						event.reply("You are not the owner of this player").setEphemeral(true).queue();
 						return;
 					}
@@ -87,20 +84,20 @@ public class AudioControlListener extends ListenerAdapter {
 
 	public Modal getAddModal() {
 		return Modal.create("add-track", "Add a new track")
-				.addActionRow(InputData.create("url", "Query", TextInputStyle.SHORT, 0, 100, true, "URL or search term(s)").build())
+				.addActionRow(TextInputUtils.build("url", "Query", TextInputStyle.SHORT, 0, 100, true, "URL or search term(s)"))
 				.build();
 	}
 
 	public Modal getEqualizerModal() {
 		return Modal.create("equalizer-modal", "change audio recording audio track")
-				.addActionRow(InputData.create("band1", "band1", TextInputStyle.SHORT, 0, 100, true, "bland1").build())
-				.addActionRow(InputData.create("band2", "band2", TextInputStyle.SHORT, 0, 100, true, "bland2").build())
+				.addActionRow(TextInputUtils.build("band1", "band1", TextInputStyle.SHORT, 0, 100, true, "bland1"))
+				.addActionRow(TextInputUtils.build("band2", "band2", TextInputStyle.SHORT, 0, 100, true, "bland2"))
 				.build();
 	}
 
 	public Modal getStartModal() {
 		return Modal.create("add-track", "Open connection")
-				.addActionRow(InputData.create("url", "Query", TextInputStyle.SHORT, 0, 100, true, "URL or search term(s)").build())
+				.addActionRow(TextInputUtils.build("url", "Query", TextInputStyle.SHORT, 0, 100, true, "URL or search term(s)"))
 				.build();
 	}
 }

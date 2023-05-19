@@ -10,8 +10,6 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import pl.morgan.discordbot.main.Application;
-import pl.morgan.discordbot.main.Config;
-import pl.morgan.discordbot.main.Config;
 
 import java.util.Map;
 import java.util.Optional;
@@ -31,27 +29,27 @@ public class Manager {
 
 		YoutubeAudioSourceManager youtubeManager = new YoutubeAudioSourceManager(
 				true,
-				getConfig().getEmail(),
-				getConfig().getEmailPassword());
+				app.config.getEmail(),
+				app.config.getEmailPassword());
 
 		youtubeManager.setPlaylistPageCount(1000);
 
 		playerManager.registerSourceManager(youtubeManager);
-		playerManager.registerSourceManager(new SpotifySourceManager(null,
-						getConfig().getSpotifyClientId(),
-						getConfig().getSpotifyClientSecret(),
+		playerManager.registerSourceManager(
+				new SpotifySourceManager(null,
+						app.config.getSpotifyClientId(),
+						app.config.getSpotifyClientSecret(),
 						"US",
 						playerManager
-				));
-		playerManager.registerSourceManager(new DeezerAudioSourceManager(
-						getConfig().getDeezerSourceManager()
-				));
+				)
+		);
+		playerManager.registerSourceManager(
+				new DeezerAudioSourceManager(
+						app.config.getDeezerKey()
+				)
+		);
 
 		AudioSourceManagers.registerRemoteSources(playerManager);
-	}
-
-	public static Config getConfig() {
-		return Config.readFromFile("config.toml");
 	}
 
 	public AudioPlayer createAudioPlayer(TrackScheduler scheduler) {
@@ -67,10 +65,10 @@ public class Manager {
 	}
 
 	public Optional<TrackScheduler> getController(AudioChannel channel, boolean create, Member member) {
-		return Optional.ofNullable(controllers.computeIfAbsent(channel.getGuild().getIdLong(), id -> isValidScheduler(channel, create, member)));
+		return Optional.ofNullable(controllers.computeIfAbsent(channel.getGuild().getIdLong(), id -> getScheduler(channel, create, member)));
 	}
 
-	private TrackScheduler isValidScheduler(AudioChannel channel, boolean create, Member member) {
+	private TrackScheduler getScheduler(AudioChannel channel, boolean create, Member member) {
 		return create ? new TrackScheduler(this, channel, member) : null;
 	}
 }

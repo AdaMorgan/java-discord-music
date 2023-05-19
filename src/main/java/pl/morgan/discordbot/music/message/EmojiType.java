@@ -26,7 +26,7 @@ public enum EmojiType {
         this.code = code;
     }
 
-    public Emoji fromUnicode() {
+    public Emoji get() {
         return Emoji.fromUnicode(code);
     }
 }

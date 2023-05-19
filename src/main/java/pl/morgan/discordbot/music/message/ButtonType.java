@@ -18,7 +18,7 @@ public enum ButtonType {
 	private final Button button;
 
 	ButtonType(String id, EmojiType emoji) {
-		this.button = Button.primary("music:" + id, emoji.fromUnicode());
+		this.button = Button.primary("music:" + id, emoji.get());
 	}
 
 	public Button getButton(boolean disabled) {

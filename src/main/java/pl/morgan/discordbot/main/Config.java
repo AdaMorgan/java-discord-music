@@ -35,7 +35,7 @@ public class Config {
 		return content.getString("spotify.client.secret");
 	}
 
-	public String getDeezerSourceManager() {
+	public String getDeezerKey() {
 		return content.getString("deezer.key");
 	}
 

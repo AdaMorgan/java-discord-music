@@ -6,10 +6,14 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.NotNull;
 import pl.morgan.discordbot.main.Application;
 import pl.morgan.discordbot.music.message.ButtonType;
 import pl.morgan.discordbot.music.message.ColorType;
+import pl.morgan.discordbot.music.message.EmojiType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,9 +45,7 @@ public class StartupListener extends ListenerAdapter {
 					.filter(message -> message.getEmbeds().size() > 0)
 					.forEach(message -> message.delete().queue()));
 
-			channel.sendMessageEmbeds(getEmbedMenu().build())
-					.setActionRow(ButtonType.START.getButton(false), ButtonType.ACCESS.getButton(true))
-					.queue(message -> this.message.put(guild.getIdLong(), message.getIdLong()));
+			channel.sendMessage(MessageCreateData.fromEditData(getEmbedMenu(guild))).queue(message -> this.message.put(guild.getIdLong(), message.getIdLong()));
 		});
 	}
 
@@ -54,10 +56,39 @@ public class StartupListener extends ListenerAdapter {
 				.ifPresentOrElse(handler, () -> guild.createTextChannel(app.config.getChannel()).queue(handler));
 	}
 
-	private EmbedBuilder getEmbedMenu() {
-		return new EmbedBuilder()
+	public void updateMessage(Guild guild) {
+		performForChannel(guild, channel ->
+			channel.editMessageById(
+					message.get(guild.getIdLong()),
+					getEmbedMenu(guild)
+			).queue()
+		);
+	}
+
+	private MessageEditData getEmbedMenu(Guild guild) {
+		var scheduler = app.manager.controllers.get(guild.getIdLong());
+
+		var embed = new EmbedBuilder()
 				.setColor(ColorType.PRIMARY.toColor())
 				.setDescription("MENU");
+
+		if(scheduler != null) {
+			var owner = app.jda.getUserById(scheduler.owner);
+
+			if(owner != null) {
+				embed.setAuthor(owner.getName(), null, owner.getEffectiveAvatarUrl());
+			}
+		}
+
+		var accessButton = ButtonType.ACCESS.getButton(scheduler == null || scheduler.getOwner() != null);
+
+		return new MessageEditBuilder()
+				.setEmbeds(embed.build())
+				.setActionRow(
+						ButtonType.START.getButton(scheduler != null),
+						scheduler == null ? accessButton : accessButton.withEmoji(scheduler.getOwner() == null ? EmojiType.PUBLIC.get() : EmojiType.PRIVATE.get())
+				)
+				.build();
 	}
 }
 
