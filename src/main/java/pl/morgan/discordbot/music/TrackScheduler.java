@@ -29,7 +29,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public HashMap<Integer, AudioTrack> queue;
 	public int currentIndex = 0;
-	private boolean isLooped = false;
+	private boolean looped, access = false;
 
 	public TrackScheduler(Manager manager, AudioChannel channel, Member member) {
 		this.manager = manager;
@@ -74,21 +74,34 @@ public class TrackScheduler extends AudioEventAdapter {
 		Optional.ofNullable(this.queue.get(--currentIndex)).ifPresentOrElse(this::playTrack, this::stop);
 	}
 
-	public void loop() {
-		if (player.getPlayingTrack() != null) this.setLooped(!isLooped);
-		message.update();
-	}
-
 	public void equalizer() {
 
 	}
 
+	public void access() {
+		if (this.owner != null) this.setAccess(!access);
+		message.update();
+	}
+
+	private void setAccess(boolean state) {
+		access = state;
+	}
+
+	public boolean isAccess() {
+		return access;
+	}
+
+	public void looped() {
+		if (player.getPlayingTrack() != null) this.setLooped(!looped);
+		message.update();
+	}
+
 	private void setLooped(boolean state) {
-		isLooped = state;
+		looped = state;
 	}
 
 	public boolean isLooped() {
-		return isLooped;
+		return looped;
 	}
 
 	public void shuffle() {
@@ -106,6 +119,8 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	public void stop() {
+		this.access = false;
+		this.looped = false;
 		getAudioManager().closeAudioConnection();
 		this.manager.controllers.remove(getChannel().getGuild().getIdLong());
 		message.update();

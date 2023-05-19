@@ -98,12 +98,8 @@ public class PlayerMessageManager {
 		return scheduler.owner != null ? ColorType.DANGER.toColor() : ColorType.SUCCESS.toColor();
 	}
 
-	private boolean access() {
-		return true;
-	}
-
 	private Emoji accessEmoji() {
-		return access() ? EmojiType.PRIVATE.fromUnicode() : EmojiType.PUBLIC.fromUnicode();
+		return scheduler.isAccess() ? EmojiType.PUBLIC.fromUnicode() : EmojiType.PRIVATE.fromUnicode();
 	}
 
 	public synchronized MessageEditData buildStartMessage() {

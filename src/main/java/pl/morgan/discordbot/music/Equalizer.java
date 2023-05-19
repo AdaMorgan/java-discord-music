@@ -2,10 +2,8 @@ package pl.morgan.discordbot.music;
 
 import com.sedmelluq.discord.lavaplayer.filter.equalizer.EqualizerFactory;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
-import org.jetbrains.annotations.NotNull;
 import pl.morgan.discordbot.listener.InputData;
 
 public class Equalizer {

@@ -39,12 +39,13 @@ public class AudioControlListener extends ListenerAdapter {
 
 		switch(id[1]) {
 			case "start" -> event.replyModal(getStartModal()).queue();
+			case "access" -> requireScheduler(event, TrackScheduler::access);
 			case "stop" -> requireScheduler(event, TrackScheduler::stop);
 			case "resume" -> requireScheduler(event, TrackScheduler::pause);
 			case "next" -> requireScheduler(event, TrackScheduler::next);
 			case "add" -> event.replyModal(getAddModal()).queue();
 			case "back" -> requireScheduler(event, TrackScheduler::back);
-			case "loop" -> requireScheduler(event, TrackScheduler::loop);
+			case "loop" -> requireScheduler(event, TrackScheduler::looped);
 			case "shuffle" -> requireScheduler(event, TrackScheduler::shuffle);
 			case "equalizer" -> requireScheduler(event, TrackScheduler::equalizer);
 		}
@@ -55,7 +56,7 @@ public class AudioControlListener extends ListenerAdapter {
 	private void requireScheduler(IReplyCallback event, Consumer<TrackScheduler> handler) {
 		getScheduler(Objects.requireNonNull(event.getMember()), false).ifPresentOrElse(
 				controller -> {
-					if (event.getMember().getIdLong() != controller.owner.getIdLong()) {
+					if (event.getMember().getIdLong() != controller.owner.getIdLong() && !controller.isAccess()) {
 						event.reply("You are not the owner of this player").setEphemeral(true).queue();
 						return;
 					}
