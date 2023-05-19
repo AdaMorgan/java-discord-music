@@ -48,7 +48,7 @@ public class PlayerMessageManager {
 
 		if (scheduler.getChannel() instanceof MessageChannel channel) {
 			executor.execute(() -> channel.editMessageById(message, buildAudioMessage()).queue());
-			executor.execute(() -> textChannel.editMessageById(getOwner(), buildStartMessage()).queue());
+			executor.execute(() -> textChannel.editMessageById(getStartupMessageByIdLong(), buildStartMessage()).queue());
 		}
 	}
 
@@ -86,7 +86,7 @@ public class PlayerMessageManager {
 		return scheduler.player.isPaused() ? EmojiType.RESUME.fromUnicode() : EmojiType.PAUSE.fromUnicode();
 	}
 
-	private Long getOwner() {
+	private Long getStartupMessageByIdLong() {
 		return this.scheduler.manager.app.startup.message.get(this.guild.getIdLong());
 	}
 
