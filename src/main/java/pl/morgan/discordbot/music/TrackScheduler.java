@@ -119,8 +119,6 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	public void stop() {
-		this.access = false;
-		this.looped = false;
 		getAudioManager().closeAudioConnection();
 		this.manager.controllers.remove(getChannel().getGuild().getIdLong());
 		message.update();
