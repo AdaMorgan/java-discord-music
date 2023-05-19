@@ -35,11 +35,11 @@ public class StartupListener extends ListenerAdapter {
 		event.getJDA().getGuilds().forEach(this::setupGuild);
 	}
 
-	private void setupGuild(Guild guild) {
+	private synchronized void setupGuild(Guild guild) {
 		performForChannel(guild, channel -> {
-//			channel.getIterableHistory().queue(messages -> messages.stream()
-//					.filter(message -> message.getEmbeds().size() > 0)
-//					.forEach(message -> message.delete().queue()));
+			channel.getIterableHistory().queue(messages -> messages.stream()
+					.filter(message -> message.getEmbeds().size() > 0)
+					.forEach(message -> message.delete().queue()));
 
 			channel.sendMessageEmbeds(getEmbedMenu().build())
 					.setActionRow(ButtonType.START.getButton(false), ButtonType.ACCESS.getButton(true))
