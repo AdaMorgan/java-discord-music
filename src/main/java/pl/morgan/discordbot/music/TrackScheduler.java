@@ -26,6 +26,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	public List<AudioTrack> queue;
 	public int currentIndex = 0;
 	private boolean looped = false;
+	private boolean trackRepeat = false;
 
 	public TrackScheduler(Manager manager, AudioChannel channel, Member member) {
 		this.manager = manager;
@@ -143,7 +144,10 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	@Override
 	public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-		if (endReason.mayStartNext) next();
+		if (trackRepeat)
+			playTrack(track.makeClone());
+
+		else if (endReason.mayStartNext) next();
 	}
 
 	@Override
