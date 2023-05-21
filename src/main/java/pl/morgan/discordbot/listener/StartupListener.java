@@ -42,6 +42,10 @@ public class StartupListener extends ListenerAdapter {
 			setupMessage(event.getGuild(), event.getChannel());
 	}
 
+	public void update() {
+
+	}
+
 	private void setupGuild(Guild guild) {
 		performForChannel(guild, channel -> {
 			channel.getIterableHistory().queue(messages -> messages.stream()

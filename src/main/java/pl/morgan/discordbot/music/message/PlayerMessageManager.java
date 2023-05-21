@@ -2,7 +2,6 @@ package pl.morgan.discordbot.music.message;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -13,10 +12,8 @@ import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import pl.morgan.discordbot.music.TrackScheduler;
 
-import java.awt.*;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
@@ -25,12 +22,10 @@ import java.util.stream.Stream;
 public class PlayerMessageManager implements AutoCloseable {
 	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
 	private final TrackScheduler scheduler;
-	private final Guild guild;
 	private long id;
 
 	public PlayerMessageManager(TrackScheduler scheduler) {
 		this.scheduler = scheduler;
-		this.guild = this.scheduler.getChannel().getGuild();
 
 		create();
 	}
@@ -47,20 +42,12 @@ public class PlayerMessageManager implements AutoCloseable {
 			channel.deleteMessageById(id).queue();
 	}
 
-	public long getIdLong() {
-		return this.id;
-	}
-
 	@Override
 	public void close() {
 		executor.shutdownNow();
 	}
 
 	public void update() {
-		if (scheduler.getChannel().getGuild().getTextChannelsByName("music", true) instanceof MessageChannel channel) {
-			executor.execute(() -> channel.editMessageById(getStartupMessageByIdLong(), buildStartMessage()).queue());
-		}
-
 		if (scheduler.getChannel() instanceof MessageChannel channel) {
 			executor.execute(() -> channel.editMessageById(id, buildAudioMessage()).queue());
 		}
@@ -98,38 +85,6 @@ public class PlayerMessageManager implements AutoCloseable {
 
 	private Emoji getEmoji() {
 		return scheduler.player.isPaused() ? EmojiType.RESUME.fromUnicode() : EmojiType.PAUSE.fromUnicode();
-	}
-
-	private Long getStartupMessageByIdLong() {
-		return this.scheduler.manager.app.startup.message.get(this.guild.getIdLong());
-	}
-
-	private String owner() {
-		return Optional.ofNullable(scheduler.owner)
-				.map(owner -> scheduler.owner.getUser().getAsTag())
-				.orElse("**free**");
-	}
-
-	public Color color() {
-		return Optional.ofNullable(scheduler.owner)
-				.map(owner -> ColorType.DANGER.toColor())
-				.orElse(ColorType.SUCCESS.toColor());
-	}
-
-	private Emoji accessEmoji() {
-		return scheduler.isAccess() ? EmojiType.PUBLIC.fromUnicode() : EmojiType.PRIVATE.fromUnicode();
-	}
-
-	public synchronized MessageEditData buildStartMessage() {
-		return new MessageEditBuilder()
-				.setEmbeds(new EmbedBuilder()
-								.setColor(color())
-								.setDescription(owner())
-								.build())
-				.setActionRow(
-						ButtonType.START.getButton(scheduler.owner != null),
-						ButtonType.ACCESS.getButton(scheduler.owner == null).withEmoji(accessEmoji()))
-				.build();
 	}
 
 	private synchronized MessageEditData buildAudioMessage() {
