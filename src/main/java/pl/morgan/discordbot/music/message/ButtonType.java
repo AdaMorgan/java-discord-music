@@ -5,13 +5,14 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 public enum ButtonType {
 	START("start", EmojiType.START),
 	ACCESS("access", EmojiType.PRIVATE),
-
+	STREAM("stream", EmojiType.START),
 	STOP("stop", EmojiType.STOP),
 	RESUME("resume", EmojiType.RESUME),
 	NEXT("next", EmojiType.NEXT),
 	BACK("back", EmojiType.BACK),
 	ADD("add", EmojiType.ADD),
-	LOOP("loop", EmojiType.LOOP),
+	LOOP_TRACK("loop-track", EmojiType.LOOP),
+	LOOP_QUEUE("loop-queue", EmojiType.LOOP),
 	SHUFFLE("shuffle", EmojiType.SHUFFLE),
 	EQUALIZER("equalizer", EmojiType.EQUALIZER);
 

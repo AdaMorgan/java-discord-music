@@ -3,7 +3,6 @@ package pl.morgan.discordbot.music.message;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -17,38 +16,53 @@ import pl.morgan.discordbot.music.TrackScheduler;
 import java.awt.*;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class PlayerMessageManager {
+public class PlayerMessageManager implements AutoCloseable {
 	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
 	private final TrackScheduler scheduler;
 	private final Guild guild;
-	private long message;
+	private long id;
 
 	public PlayerMessageManager(TrackScheduler scheduler) {
 		this.scheduler = scheduler;
 		this.guild = this.scheduler.getChannel().getGuild();
 
+		create();
+	}
+
+	public void create() {
 		if (scheduler.getChannel() instanceof MessageChannel channel)
-			executor.execute(() -> message = channel.sendMessage(MessageCreateData.fromEditData(buildAudioMessage())).complete().getIdLong());
+			executor.execute(() -> channel.sendMessage(MessageCreateData.fromEditData(buildAudioMessage())).queue(
+					message -> this.id = message.getIdLong()
+			));
 	}
 
 	public void cleanup() {
-		executor.shutdownNow();
-
 		if (scheduler.getChannel() instanceof MessageChannel channel)
-			channel.deleteMessageById(message).queue();
+			channel.deleteMessageById(id).queue();
+	}
+
+	public long getIdLong() {
+		return this.id;
+	}
+
+	@Override
+	public void close() {
+		executor.shutdownNow();
 	}
 
 	public void update() {
-		TextChannel textChannel = scheduler.getChannel().getGuild().getTextChannelsByName("music", true).get(0);
+		if (scheduler.getChannel().getGuild().getTextChannelsByName("music", true) instanceof MessageChannel channel) {
+			executor.execute(() -> channel.editMessageById(getStartupMessageByIdLong(), buildStartMessage()).queue());
+		}
 
 		if (scheduler.getChannel() instanceof MessageChannel channel) {
-			executor.execute(() -> channel.editMessageById(message, buildAudioMessage()).queue());
-			executor.execute(() -> textChannel.editMessageById(getStartupMessageByIdLong(), buildStartMessage()).queue());
+			executor.execute(() -> channel.editMessageById(id, buildAudioMessage()).queue());
 		}
 	}
 
@@ -91,11 +105,15 @@ public class PlayerMessageManager {
 	}
 
 	private String owner() {
-		return scheduler.owner != null ? scheduler.owner.getUser().getAsTag() : "NULL";
+		return Optional.ofNullable(scheduler.owner)
+				.map(owner -> scheduler.owner.getUser().getAsTag())
+				.orElse("**free**");
 	}
 
 	public Color color() {
-		return scheduler.owner != null ? ColorType.DANGER.toColor() : ColorType.SUCCESS.toColor();
+		return Optional.ofNullable(scheduler.owner)
+				.map(owner -> ColorType.DANGER.toColor())
+				.orElse(ColorType.SUCCESS.toColor());
 	}
 
 	private Emoji accessEmoji() {
@@ -128,7 +146,7 @@ public class PlayerMessageManager {
 		).toList();
 
 		List<Button> buttons1 = Stream.of(
-				ButtonType.LOOP.getButton().withStyle(getStyle(!scheduler.isLooped())),
+				ButtonType.LOOP_TRACK.getButton().withStyle(getStyle(!scheduler.isLooped())),
 				ButtonType.SHUFFLE.getButton(),
 				ButtonType.EQUALIZER.getButton()
 		).toList();

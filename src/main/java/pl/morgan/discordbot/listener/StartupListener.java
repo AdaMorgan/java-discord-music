@@ -2,8 +2,9 @@ package pl.morgan.discordbot.listener;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -35,19 +36,29 @@ public class StartupListener extends ListenerAdapter {
 		event.getJDA().getGuilds().forEach(this::setupGuild);
 	}
 
-	private synchronized void setupGuild(Guild guild) {
+	@Override
+	public void onMessageDelete(MessageDeleteEvent event) {
+		if (this.message.get(event.getGuild().getIdLong()) != null && event.getMessageIdLong() == this.message.get(event.getGuild().getIdLong()))
+			setupMessage(event.getGuild(), event.getChannel());
+	}
+
+	private void setupGuild(Guild guild) {
 		performForChannel(guild, channel -> {
 			channel.getIterableHistory().queue(messages -> messages.stream()
 					.filter(message -> message.getEmbeds().size() > 0)
 					.forEach(message -> message.delete().queue()));
 
-			channel.sendMessageEmbeds(getEmbedMenu().build())
-					.setActionRow(ButtonType.START.getButton(false), ButtonType.ACCESS.getButton(true))
-					.queue(message -> this.message.put(guild.getIdLong(), message.getIdLong()));
+			setupMessage(guild, channel);
 		});
 	}
 
-	private void performForChannel(Guild guild, Consumer<TextChannel> handler) {
+	private void setupMessage(Guild guild, MessageChannel channel) {
+		channel.sendMessageEmbeds(getEmbedMenu().build())
+				.setActionRow(ButtonType.START.getButton(false), ButtonType.ACCESS.getButton(true))
+				.queue(message -> this.message.put(guild.getIdLong(), message.getIdLong()));
+	}
+
+	private void performForChannel(Guild guild, Consumer<MessageChannel> handler) {
 		guild.getTextChannels().stream()
 				.filter(channel -> channel.getName().equals(app.config.getChannel()))
 				.findAny()
@@ -56,7 +67,7 @@ public class StartupListener extends ListenerAdapter {
 
 	private EmbedBuilder getEmbedMenu() {
 		return new EmbedBuilder()
-				.setColor(ColorType.PRIMARY.toColor())
+				.setColor(ColorType.SUCCESS.toColor())
 				.setDescription("MENU");
 	}
 }

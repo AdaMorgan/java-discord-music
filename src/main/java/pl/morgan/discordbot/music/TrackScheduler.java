@@ -22,12 +22,12 @@ public class TrackScheduler extends AudioEventAdapter {
 	public final AudioPlayer player;
 
 	private final long channel;
-	private final PlayerMessageManager message;
+	public final PlayerMessageManager message;
 	public final Member owner;
 	private final AtomicInteger integer;
 	public Equalizer equalizer;
 
-	public HashMap<Integer, AudioTrack> queue;
+	public Map<Integer, AudioTrack> queue;
 	public int currentIndex = 0;
 	private boolean looped, access = false;
 
@@ -54,7 +54,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	public void loadTrack(Collection<AudioTrack> tracks) {
-		tracks.forEach(track -> this.queue.put(integer.getAndIncrement(), track));
+		tracks.forEach(track -> queue.put(integer.getAndIncrement(), track));
 		if (this.player.getPlayingTrack() == null) next();
 	}
 
@@ -67,11 +67,11 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	public void next() {
-		Optional.ofNullable(this.queue.get(++currentIndex)).ifPresentOrElse(this::playTrack, this::stop);
+		Optional.ofNullable(queue.get(++currentIndex)).ifPresentOrElse(this::playTrack, this::stop);
 	}
 
 	public void back() {
-		Optional.ofNullable(this.queue.get(--currentIndex)).ifPresentOrElse(this::playTrack, this::stop);
+		Optional.ofNullable(queue.get(--currentIndex)).ifPresentOrElse(this::playTrack, this::stop);
 	}
 
 	public void equalizer() {
@@ -107,10 +107,9 @@ public class TrackScheduler extends AudioEventAdapter {
 	public void shuffle() {
 		List<AudioTrack> tracks = new ArrayList<>(queue.values());
 		Collections.shuffle(tracks);
-		List<Integer> keys = new ArrayList<>(queue.keySet());
 		queue = IntStream.range(0, queue.size())
 				.boxed()
-				.collect(Collectors.toMap(keys::get, tracks::get, (key, value) -> value, LinkedHashMap::new));
+				.collect(Collectors.toMap(i -> i + 1, tracks::get, (key, value) -> value, LinkedHashMap::new));
 	}
 
 	public void pause() {
@@ -137,7 +136,12 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	@Override
 	public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-		if (endReason.mayStartNext) next();
+		if (endReason.mayStartNext) {
+			if (looped)
+				this.playTrack(track);
+			else
+				next();
+		}
 	}
 
 	@Override
