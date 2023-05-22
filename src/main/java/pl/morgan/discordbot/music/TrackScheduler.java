@@ -5,6 +5,7 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -27,6 +28,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	public final Member owner;
 	private final AtomicInteger integer;
 	private final StartupListener startup;
+	private final Guild guild;
 	public Equalizer equalizer;
 
 	public Map<Integer, AudioTrack> queue;
@@ -36,6 +38,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	public TrackScheduler(Manager manager, AudioChannel channel, Member member) {
 		this.manager = manager;
 		this.channel = channel.getIdLong();
+		this.guild = this.getChannel().getGuild();
 		this.owner = member;
 		this.integer = new AtomicInteger(1);
 		this.player = manager.createAudioPlayer(this);
@@ -46,7 +49,6 @@ public class TrackScheduler extends AudioEventAdapter {
 
 		getAudioManager().openAudioConnection(channel);
 		channel.getGuild().getAudioManager().setSendingHandler(new SendHandler(player));
-		startup.update();
 	}
 
 	private AudioManager getAudioManager() {
@@ -60,6 +62,8 @@ public class TrackScheduler extends AudioEventAdapter {
 	public void loadTrack(Collection<AudioTrack> tracks) {
 		tracks.forEach(track -> queue.put(integer.getAndIncrement(), track));
 		if (this.player.getPlayingTrack() == null) next();
+		this.startup.update(this.guild);
+		message.update();
 	}
 
 	public void add(String url) {
@@ -84,7 +88,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public void access() {
 		if (this.owner != null) this.setAccess(!access);
-		startup.update();
+		startup.update(this.guild);
 	}
 
 	private void setAccess(boolean state) {
@@ -126,7 +130,7 @@ public class TrackScheduler extends AudioEventAdapter {
 		this.manager.controllers.remove(getChannel().getGuild().getIdLong());
 		message.cleanup();
 
-		this.startup.update();
+		this.startup.update(this.guild);
 	}
 
 	private void remove() {

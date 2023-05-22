@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
@@ -14,10 +13,10 @@ import pl.morgan.discordbot.music.TrackScheduler;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class PlayerMessageManager implements AutoCloseable {
 	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
@@ -48,9 +47,8 @@ public class PlayerMessageManager implements AutoCloseable {
 	}
 
 	public void update() {
-		if (scheduler.getChannel() instanceof MessageChannel channel) {
-			executor.execute(() -> channel.editMessageById(id, buildAudioMessage()).queue());
-		}
+		if (scheduler.getChannel() instanceof MessageChannel channel)
+			executor.execute(() -> channel.editMessageById(this.id, buildAudioMessage()).queue());
 	}
 
 	private String subAudioTrackByName(String str) {
@@ -60,7 +58,7 @@ public class PlayerMessageManager implements AutoCloseable {
 	private String queue() {
 		return scheduler.queue.entrySet().stream()
 				.filter(entry -> entry.getKey() >= scheduler.currentIndex + 1 && entry.getKey() < scheduler.currentIndex + 11)
-				.map(entry -> String.format("**%d**. %s", entry.getKey(), subAudioTrackByName(entry.getValue().getInfo().title)))
+				.map(entry -> String.format("**%d**. %s", entry.getKey(), subAudioTrackByName(formattedTrackSpotify(entry.getValue()))))
 				.collect(Collectors.joining("\n"));
 	}
 
@@ -87,37 +85,60 @@ public class PlayerMessageManager implements AutoCloseable {
 		return scheduler.player.isPaused() ? EmojiType.RESUME.fromUnicode() : EmojiType.PAUSE.fromUnicode();
 	}
 
-	private synchronized MessageEditData buildAudioMessage() {
-		AudioTrack track = scheduler.player.getPlayingTrack();
+	private AudioTrack getAudioTrack() {
+		return this.scheduler.player.getPlayingTrack();
+	}
 
-		if (track == null) return MessageEditData.fromContent("Loading...");
+	private String formattedTrackSpotify(AudioTrack track) {
+		return String.format("%s - %s", track.getInfo().author, track.getInfo().title);
+	}
 
-		List<Button> buttons = Stream.of(
-				ButtonType.STOP.getButton(),
-				ButtonType.BACK.getButton(!beforeAudio()),
-				ButtonType.RESUME.getButton().withStyle(getStyle(scheduler.player.isPaused())).withEmoji(getEmoji()),
-				ButtonType.NEXT.getButton(!afterAudio()),
-				ButtonType.ADD.getButton()
-		).toList();
+	private String title(AudioTrack track) {
+		return track.getSourceManager().getSourceName().equals("spotify") ? formattedTrackSpotify(track) : track.getInfo().title;
+	}
 
-		List<Button> buttons1 = Stream.of(
-				ButtonType.LOOP_TRACK.getButton().withStyle(getStyle(!scheduler.isLooped())),
-				ButtonType.SHUFFLE.getButton(),
-				ButtonType.EQUALIZER.getButton()
-		).toList();
+	private String artwork(AudioTrack track) {
+		return switch (track.getSourceManager().getSourceName()) {
+			case "youtube" -> track.getInfo().artworkUrl;
+			case "spotify" -> "spotify";
+			case "soundcloud" -> "soundcloud";
+			default ->
+					throw new IllegalStateException("Unexpected value: " + track.getSourceManager().getSourceName());
+		};
+	}
 
-		EmbedBuilder embedBuilder = new EmbedBuilder()
-				.setTitle(track.getInfo().title, track.getInfo().uri)
+	private EmbedBuilder embed(AudioTrack track) {
+		return new EmbedBuilder()
+				.setTitle(title(track), track.getInfo().uri)
 				.addField("Queue:", queue(), true)
 				.addField("History:", history(), true)
-				.setThumbnail(track.getInfo().artworkUrl)
+				.setThumbnail(artwork(track))
 				.setColor(ColorType.PRIMARY.toColor())
 				.setFooter(String.valueOf(scheduler.queue.size()));
+	}
 
-		return new MessageEditBuilder()
-				.setContent("")
-				.setEmbeds(embedBuilder.build())
-				.setComponents(ActionRow.of(buttons), ActionRow.of(buttons1))
-				.build();
+	private List<ActionRow> buttons() {
+		return List.of(
+				ActionRow.of(
+						ButtonType.STOP.getButton(),
+						ButtonType.BACK.getButton(!beforeAudio()),
+						ButtonType.RESUME.getButton().withStyle(getStyle(scheduler.player.isPaused())).withEmoji(getEmoji()),
+						ButtonType.NEXT.getButton(!afterAudio()),
+						ButtonType.ADD.getButton()),
+				ActionRow.of(
+						ButtonType.LOOP_TRACK.getButton().withStyle(getStyle(!scheduler.isLooped())),
+						ButtonType.SHUFFLE.getButton(),
+						ButtonType.EQUALIZER.getButton()
+				));
+	}
+
+	private synchronized MessageEditData buildAudioMessage() {
+		return Optional.ofNullable(getAudioTrack())
+				.map(track -> new MessageEditBuilder()
+						.setContent("")
+						.setEmbeds(embed(track).build())
+						.setComponents(buttons())
+						.build())
+				.orElse(MessageEditData.fromContent("Loading..."));
 	}
 }
