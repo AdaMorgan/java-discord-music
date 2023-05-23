@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 public enum ButtonType {
 	START("start", EmojiType.START),
 	ACCESS("access", EmojiType.PRIVATE),
-	STREAM("stream", EmojiType.START),
+	STREAM("stream", EmojiType.STREAM),
 	STOP("stop", EmojiType.STOP),
 	RESUME("resume", EmojiType.RESUME),
 	NEXT("next", EmojiType.NEXT),

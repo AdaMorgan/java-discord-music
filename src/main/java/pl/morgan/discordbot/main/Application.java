@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import pl.morgan.discordbot.listener.AudioControlListener;
+import pl.morgan.discordbot.listener.ShutdownListener;
 import pl.morgan.discordbot.listener.StartupListener;
 import pl.morgan.discordbot.music.Manager;
 
@@ -30,6 +31,7 @@ public class Application {
 				.setActivity(Activity.listening("music"))
 
 				.addEventListeners(startup)
+				.addEventListeners(new ShutdownListener(this))
 				.addEventListeners(new AudioControlListener(this))
 				.build();
 	}

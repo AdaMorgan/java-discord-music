@@ -29,11 +29,13 @@ import java.util.function.Consumer;
 
 public class StartupListener extends ListenerAdapter {
 	private final Application app;
+	private final Map<Long, TrackScheduler> scheduler;
 	public Map<Long, Long> message;
 
 	public StartupListener(Application app) {
 		this.app = app;
 		this.message = new HashMap<>();
+		this.scheduler = this.app.manager.controllers;
 	}
 
 	@Override
@@ -51,6 +53,25 @@ public class StartupListener extends ListenerAdapter {
 		if (this.message.get(event.getGuild().getIdLong()) != null && event.getMessageIdLong() == this.message.get(event.getGuild().getIdLong()))
 			setupMessage(event.getGuild(), event.getChannel());
 	}
+
+//	@Override
+//	public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
+//		Member member = getTrackScheduler(event.getGuild()).owner;
+//		if (event.getEntity().equals(member)) {
+//			List<VoiceChannel> channels = event.getGuild().getVoiceChannels();
+//			Optional<VoiceChannel> leftChannel = channels.stream()
+//					.filter(c -> c.equals(event.getChannelLeft()))
+//					.findFirst();
+//			Optional<VoiceChannel> joinedChannel = channels.stream()
+//					.filter(c -> c.equals(event.getChannelJoined()))
+//					.findFirst();
+//			if (leftChannel.isPresent()) {
+//				System.out.println(member.getEffectiveName() + " вышел из голосового канала");
+//			} else if (joinedChannel.isPresent()) {
+//				System.out.println(member.getEffectiveName() + " присоединился к голосовому каналу");
+//			}
+//		}
+//	}
 
 	public void update(Guild guild) {
 		performForChannel(guild, channel -> channel.editMessageById(this.message.get(guild.getIdLong()), message(guild)).queue());

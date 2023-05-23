@@ -7,18 +7,20 @@ public enum EmojiType {
     SPOTIFY("spotify", 1098879199663628308L),
     SOUNDCLOUD("soundcloud", 1098879198044639313L),
 
-    START("start", 0L),
-    PRIVATE("private", 0L),
-    PUBLIC("public", 0L),
-    STOP("stop", 0L),
-    RESUME("resume", 0L),
-    PAUSE("pause", 0L),
-    NEXT("next", 0L),
-    BACK("back", 0L),
-    ADD("add", 0L),
-    LOOP("loop", 0L),
-    SHUFFLE("shuffle", 0L),
-    EQUALIZER("equalizer", 0L);
+    START("youtube", 1098879196580806767L), //
+    PRIVATE("youtube", 1098879196580806767L),
+    PUBLIC("youtube", 1098879196580806767L),
+    STOP("youtube", 1098879196580806767L), //
+    RESUME("youtube", 1098879196580806767L),
+    PAUSE("youtube", 1098879196580806767L),
+    NEXT("youtube", 1098879196580806767L),
+    BACK("youtube", 1098879196580806767L),
+    ADD("youtube", 1098879196580806767L),
+    LOOP_QUEUE("youtube", 1098879196580806767L),
+    LOOP("youtube", 1098879196580806767L),
+    STREAM("youtube", 1098879196580806767L),
+    SHUFFLE("youtube", 1098879196580806767L),
+    EQUALIZER("youtube", 1098879196580806767L);
 
     private final String name;
     private final long code;
