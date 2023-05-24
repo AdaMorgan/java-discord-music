@@ -32,7 +32,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	public Equalizer equalizer;
 
 	public Map<Integer, AudioTrack> queue;
-	public int currentIndex = 1;
+	public int currentIndex = 0;
 	private boolean looped, access = false;
 
 	public TrackScheduler(Manager manager, AudioChannel channel, Member member) {
@@ -75,7 +75,8 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	public void play() {
-		Optional.of(looped).ifPresentOrElse(value -> this.playTrack(queue.get(currentIndex)), this::next);
+		Optional.of(looped).filter(value -> value)
+				.ifPresentOrElse(value -> this.playTrack(queue.get(currentIndex)), this::next);
 	}
 
 	public void next() {
