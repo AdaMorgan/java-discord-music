@@ -18,7 +18,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class TrackScheduler extends AudioEventAdapter {
 	public final Manager manager;
@@ -33,7 +32,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	public Equalizer equalizer;
 
 	public Map<Integer, AudioTrack> queue;
-	public int currentIndex = 0;
+	public int currentIndex = 1;
 	private boolean looped, access = false;
 
 	public TrackScheduler(Manager manager, AudioChannel channel, Member member) {
@@ -76,13 +75,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	public void play() {
-		Stream.of(looped).filter(Boolean::booleanValue)
-				.findFirst()
-				.ifPresentOrElse(value -> playLooped(), this::next);
-	}
-
-	private void playLooped() {
-		this.playTrack(queue.get(currentIndex).makeClone());
+		Optional.of(looped).ifPresentOrElse(value -> this.playTrack(queue.get(currentIndex)), this::next);
 	}
 
 	public void next() {
@@ -112,7 +105,6 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public void looped() {
 		if (player.getPlayingTrack() != null) this.setLooped(!looped);
-		System.out.println(looped);
 		message.update();
 	}
 
@@ -122,10 +114,6 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public boolean isLooped() {
 		return looped;
-	}
-
-	public void loopQueue() {
-
 	}
 
 	public void shuffle() {
