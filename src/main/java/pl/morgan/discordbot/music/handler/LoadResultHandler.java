@@ -34,6 +34,6 @@ public class LoadResultHandler implements AudioLoadResultHandler {
 	@Override
 	public void loadFailed(FriendlyException exception) {
 		System.out.println(exception.getMessage());
-		this.queue.next();
+		this.queue.play();
 	}
 }

@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class TrackScheduler extends AudioEventAdapter {
 	public final Manager manager;
@@ -38,8 +39,8 @@ public class TrackScheduler extends AudioEventAdapter {
 	public TrackScheduler(Manager manager, AudioChannel channel, Member member) {
 		this.manager = manager;
 		this.channel = channel.getIdLong();
-		this.guild = this.getChannel().getGuild();
 		this.owner = member;
+		this.guild = this.getChannel().getGuild();
 		this.integer = new AtomicInteger(1);
 		this.player = manager.createAudioPlayer(this);
 		this.message = new PlayerMessageManager(this);
@@ -61,7 +62,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public void loadTrack(Collection<AudioTrack> tracks) {
 		tracks.forEach(track -> queue.put(integer.getAndIncrement(), track));
-		if (this.player.getPlayingTrack() == null) next();
+		if (this.player.getPlayingTrack() == null) play();
 		this.startup.update(this.guild);
 		message.update();
 	}
@@ -72,6 +73,16 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	private void playTrack(AudioTrack track) {
 		player.playTrack(track.makeClone());
+	}
+
+	public void play() {
+		Stream.of(looped).filter(Boolean::booleanValue)
+				.findFirst()
+				.ifPresentOrElse(value -> playLooped(), this::next);
+	}
+
+	private void playLooped() {
+		this.playTrack(queue.get(currentIndex).makeClone());
 	}
 
 	public void next() {
@@ -101,6 +112,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public void looped() {
 		if (player.getPlayingTrack() != null) this.setLooped(!looped);
+		System.out.println(looped);
 		message.update();
 	}
 
@@ -110,6 +122,10 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public boolean isLooped() {
 		return looped;
+	}
+
+	public void loopQueue() {
+
 	}
 
 	public void shuffle() {
@@ -145,12 +161,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	@Override
 	public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-		if (endReason.mayStartNext) {
-			if (looped)
-				this.playTrack(track);
-			else
-				next();
-		}
+		if (endReason.mayStartNext) play();
 	}
 
 	@Override

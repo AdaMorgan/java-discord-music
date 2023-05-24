@@ -31,9 +31,7 @@ public class PlayerMessageManager implements AutoCloseable {
 
 	public void create() {
 		if (scheduler.getChannel() instanceof MessageChannel channel)
-			executor.execute(() -> channel.sendMessage(MessageCreateData.fromEditData(buildAudioMessage())).queue(
-					message -> this.id = message.getIdLong()
-			));
+			executor.execute(() -> this.id = channel.sendMessage(MessageCreateData.fromEditData(buildAudioMessage())).complete().getIdLong());
 	}
 
 	public void cleanup() {
