@@ -1,4 +1,4 @@
-package pl.morgan.discordbot.listener;
+package discord.listener;
 
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;

@@ -1,14 +1,14 @@
-package pl.morgan.discordbot.main;
+package discord.main;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import pl.morgan.discordbot.listener.AudioControlListener;
-import pl.morgan.discordbot.listener.ShutdownListener;
-import pl.morgan.discordbot.listener.StartupListener;
-import pl.morgan.discordbot.music.Manager;
+import discord.listener.AudioControlListener;
+import discord.listener.ShutdownListener;
+import discord.listener.StartupListener;
+import discord.music.Manager;
 
 
 public class Application {

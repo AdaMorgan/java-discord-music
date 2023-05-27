@@ -1,4 +1,4 @@
-package pl.morgan.discordbot.music;
+package discord.music;
 
 import com.github.topisenpai.lavasrc.deezer.DeezerAudioSourceManager;
 import com.github.topisenpai.lavasrc.spotify.SpotifySourceManager;
@@ -9,8 +9,8 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
-import pl.morgan.discordbot.main.Application;
-import pl.morgan.discordbot.main.Config;
+import discord.main.Application;
+import discord.main.Config;
 
 import java.util.Map;
 import java.util.Optional;

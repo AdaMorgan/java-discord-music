@@ -1,4 +1,4 @@
-package pl.morgan.discordbot.listener;
+package discord.listener;
 
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -9,8 +9,8 @@ import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
-import pl.morgan.discordbot.main.Application;
-import pl.morgan.discordbot.music.TrackScheduler;
+import discord.main.Application;
+import discord.music.TrackScheduler;
 
 import java.util.Objects;
 import java.util.Optional;

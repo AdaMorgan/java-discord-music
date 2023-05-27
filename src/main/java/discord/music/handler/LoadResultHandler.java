@@ -1,10 +1,10 @@
-package pl.morgan.discordbot.music.handler;
+package discord.music.handler;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import pl.morgan.discordbot.music.TrackScheduler;
+import discord.music.TrackScheduler;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -1,4 +1,4 @@
-package pl.morgan.discordbot.listener;
+package discord.listener;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -14,11 +14,11 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.NotNull;
-import pl.morgan.discordbot.main.Application;
-import pl.morgan.discordbot.music.TrackScheduler;
-import pl.morgan.discordbot.music.message.ButtonType;
-import pl.morgan.discordbot.music.message.ColorType;
-import pl.morgan.discordbot.music.message.EmojiType;
+import discord.main.Application;
+import discord.music.TrackScheduler;
+import discord.music.message.ButtonType;
+import discord.music.message.ColorType;
+import discord.music.message.EmojiType;
 
 import java.awt.*;
 import java.util.HashMap;

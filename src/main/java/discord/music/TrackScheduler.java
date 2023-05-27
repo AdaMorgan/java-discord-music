@@ -1,4 +1,4 @@
-package pl.morgan.discordbot.music;
+package discord.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -9,10 +9,10 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
-import pl.morgan.discordbot.listener.StartupListener;
-import pl.morgan.discordbot.music.handler.LoadResultHandler;
-import pl.morgan.discordbot.music.handler.SendHandler;
-import pl.morgan.discordbot.music.message.PlayerMessageManager;
+import discord.listener.StartupListener;
+import discord.music.handler.LoadResultHandler;
+import discord.music.handler.SendHandler;
+import discord.music.message.PlayerMessageManager;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;

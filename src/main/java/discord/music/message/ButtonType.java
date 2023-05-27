@@ -1,4 +1,4 @@
-package pl.morgan.discordbot.music.message;
+package discord.music.message;
 
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 

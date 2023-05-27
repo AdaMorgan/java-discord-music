@@ -1,7 +1,7 @@
-package pl.morgan.discordbot.listener;
+package discord.listener;
 
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import pl.morgan.discordbot.main.Application;
+import discord.main.Application;
 
 public class ShutdownListener extends ListenerAdapter {
 
@@ -10,4 +10,5 @@ public class ShutdownListener extends ListenerAdapter {
     public ShutdownListener(Application app) {
         this.app = app;
     }
+
 }

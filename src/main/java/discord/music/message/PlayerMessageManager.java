@@ -1,4 +1,4 @@
-package pl.morgan.discordbot.music.message;
+package discord.music.message;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
-import pl.morgan.discordbot.music.TrackScheduler;
+import discord.music.TrackScheduler;
 
 import java.util.Comparator;
 import java.util.List;

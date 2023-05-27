@@ -1,4 +1,4 @@
-package pl.morgan.discordbot.music;
+package discord.music;
 
 import com.sedmelluq.discord.lavaplayer.filter.equalizer.EqualizerFactory;
 
