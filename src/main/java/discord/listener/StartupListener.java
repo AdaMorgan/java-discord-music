@@ -1,5 +1,10 @@
 package discord.listener;
 
+import discord.main.Application;
+import discord.music.TrackScheduler;
+import discord.music.message.ButtonType;
+import discord.music.message.ColorType;
+import discord.music.message.EmojiType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -14,11 +19,6 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.NotNull;
-import discord.main.Application;
-import discord.music.TrackScheduler;
-import discord.music.message.ButtonType;
-import discord.music.message.ColorType;
-import discord.music.message.EmojiType;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 public class StartupListener extends ListenerAdapter {
 	private final Application app;
 	private final Map<Long, TrackScheduler> scheduler;
-	public Map<Long, Long> message;
+	private final Map<Long, Long> message;
 
 	public StartupListener(Application app) {
 		this.app = app;
@@ -48,30 +48,15 @@ public class StartupListener extends ListenerAdapter {
 		event.getJDA().getGuilds().forEach(this::setupGuild);
 	}
 
+	private TrackScheduler getTrackScheduler(Guild guild) {
+		return scheduler.get(guild.getIdLong());
+	}
+
 	@Override
 	public void onMessageDelete(MessageDeleteEvent event) {
 		if (this.message.get(event.getGuild().getIdLong()) != null && event.getMessageIdLong() == this.message.get(event.getGuild().getIdLong()))
 			setupMessage(event.getGuild(), event.getChannel());
 	}
-
-//	@Override
-//	public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
-//		Member member = getTrackScheduler(event.getGuild()).owner;
-//		if (event.getEntity().equals(member)) {
-//			List<VoiceChannel> channels = event.getGuild().getVoiceChannels();
-//			Optional<VoiceChannel> leftChannel = channels.stream()
-//					.filter(c -> c.equals(event.getChannelLeft()))
-//					.findFirst();
-//			Optional<VoiceChannel> joinedChannel = channels.stream()
-//					.filter(c -> c.equals(event.getChannelJoined()))
-//					.findFirst();
-//			if (leftChannel.isPresent()) {
-//				System.out.println(member.getEffectiveName() + " вышел из голосового канала");
-//			} else if (joinedChannel.isPresent()) {
-//				System.out.println(member.getEffectiveName() + " присоединился к голосовому каналу");
-//			}
-//		}
-//	}
 
 	public void update(Guild guild) {
 		performForChannel(guild, channel -> channel.editMessageById(this.message.get(guild.getIdLong()), message(guild)).queue());
@@ -96,10 +81,6 @@ public class StartupListener extends ListenerAdapter {
 				.filter(channel -> channel.getName().equals(app.config.getChannel()))
 				.findAny()
 				.ifPresentOrElse(handler, () -> guild.createTextChannel(app.config.getChannel()).queue(handler));
-	}
-
-	private TrackScheduler getTrackScheduler(Guild guild) {
-		return this.app.manager.controllers.get(guild.getIdLong());
 	}
 
 	private Color color(Guild guild) {

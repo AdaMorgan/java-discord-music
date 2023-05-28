@@ -3,9 +3,6 @@ plugins {
     id 'application'
 }
 
-group = 'pl.morgan'
-version = '1.0.0'
-
 sourceCompatibility = JavaVersion.VERSION_19
 targetCompatibility = JavaVersion.VERSION_19
 mainClassName = 'Application'

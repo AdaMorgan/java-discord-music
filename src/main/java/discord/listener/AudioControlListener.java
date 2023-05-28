@@ -1,16 +1,17 @@
 package discord.listener;
 
+import discord.main.Application;
+import discord.music.TrackScheduler;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
-import discord.main.Application;
-import discord.music.TrackScheduler;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -60,6 +61,17 @@ public class AudioControlListener extends ListenerAdapter {
 					}
 					handler.accept(controller);
 				}, () -> event.reply("No audio connection").setEphemeral(true).queue()
+		);
+	}
+
+	@Override
+	public void onMessageDelete(@NotNull MessageDeleteEvent event) {
+		getTrackScheduler("member", false).ifPresent(
+				controller -> {
+					if (event.getMessageIdLong() == controller.message.getMessage(event.getGuild())) {
+						controller.message.create();
+					}
+				}
 		);
 	}
 

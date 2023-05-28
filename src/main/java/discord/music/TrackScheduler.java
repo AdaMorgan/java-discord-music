@@ -23,7 +23,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	public final Manager manager;
 	public final AudioPlayer player;
 
-	private final long channel;
+	private final AudioChannel channel;
 	public final PlayerMessageManager message;
 	public final Member owner;
 	private final AtomicInteger integer;
@@ -37,7 +37,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public TrackScheduler(Manager manager, AudioChannel channel, Member member) {
 		this.manager = manager;
-		this.channel = channel.getIdLong();
+		this.channel = channel;
 		this.owner = member;
 		this.guild = this.getChannel().getGuild();
 		this.integer = new AtomicInteger(1);
@@ -51,12 +51,12 @@ public class TrackScheduler extends AudioEventAdapter {
 		channel.getGuild().getAudioManager().setSendingHandler(new SendHandler(player));
 	}
 
-	private AudioManager getAudioManager() {
+	public AudioManager getAudioManager() {
 		return getChannel().getGuild().getAudioManager();
 	}
 
 	public AudioChannel getChannel() {
-		return manager.app.jda.getChannelById(AudioChannel.class, channel);
+		return manager.app.jda.getChannelById(AudioChannel.class, channel.getIdLong());
 	}
 
 	public void loadTrack(Collection<AudioTrack> tracks) {
@@ -75,8 +75,11 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	public void play() {
-		Optional.of(looped).filter(value -> value)
-				.ifPresentOrElse(value -> this.playTrack(queue.get(currentIndex)), this::next);
+		Optional.of(looped).filter(value -> value).ifPresentOrElse(value -> this.playTrack(queue.get(currentIndex)), this::next);
+	}
+
+	private void remove() {
+		this.queue.entrySet().removeIf(entry -> entry.getKey() == currentIndex - 11);
 	}
 
 	public void next() {
@@ -136,10 +139,6 @@ public class TrackScheduler extends AudioEventAdapter {
 		message.cleanup();
 
 		this.startup.update(this.guild);
-	}
-
-	private void remove() {
-		this.queue.entrySet().removeIf(entry -> entry.getKey() == currentIndex - 11);
 	}
 
 	@Override
