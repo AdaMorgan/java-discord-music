@@ -68,10 +68,9 @@ public class AudioControlListener extends ListenerAdapter {
 
 	@Override
 	public void onMessageDelete(@NotNull MessageDeleteEvent event) {
-		PlayerMessageManager message = app.manager.controllers.get(event.getGuild().getIdLong()).message;
-
-		if (event.getMessageIdLong() == message.id)
-			message.create();
+		Optional.ofNullable(app.manager.controllers.get(event.getGuild().getIdLong()))
+				.filter(controller -> controller.message.id == event.getMessageIdLong())
+				.ifPresent(controller -> controller.message.create());
 	}
 
 	@Override
@@ -87,7 +86,7 @@ public class AudioControlListener extends ListenerAdapter {
 	}
 
 	@Override
-	public void onChannelDelete(ChannelDeleteEvent event) {
+	public void onChannelDelete(@NotNull ChannelDeleteEvent event) {
 		super.onChannelDelete(event);
 	}
 

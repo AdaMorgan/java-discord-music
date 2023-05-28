@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
@@ -53,6 +54,11 @@ public class StartupListener extends ListenerAdapter {
 	}
 
 	@Override
+	public void onChannelDelete(@NotNull ChannelDeleteEvent event) {
+		if (event.getChannel().getName().equals(app.config.getTextChannelByName())) setupGuild(event.getGuild());
+	}
+
+	@Override
 	public void onMessageDelete(MessageDeleteEvent event) {
 		if (this.message.get(event.getGuild().getIdLong()) != null && event.getMessageIdLong() == this.message.get(event.getGuild().getIdLong()))
 			setupMessage(event.getGuild(), event.getChannel());
@@ -78,9 +84,9 @@ public class StartupListener extends ListenerAdapter {
 
 	private void performForChannel(Guild guild, Consumer<MessageChannel> handler) {
 		guild.getTextChannels().stream()
-				.filter(channel -> channel.getName().equals(app.config.getChannel()))
+				.filter(channel -> channel.getName().equals(app.config.getTextChannelByName()))
 				.findAny()
-				.ifPresentOrElse(handler, () -> guild.createTextChannel(app.config.getChannel()).queue(handler));
+				.ifPresentOrElse(handler, () -> guild.createTextChannel(app.config.getTextChannelByName()).queue(handler));
 	}
 
 	private Color color(Guild guild) {

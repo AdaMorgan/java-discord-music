@@ -15,7 +15,7 @@ public class Config {
 		return content.getString("discord.token");
 	}
 
-	public String getChannel() {
+	public String getTextChannelByName() {
 		return content.getString("discord.channel");
 	}
 
