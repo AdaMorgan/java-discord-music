@@ -3,7 +3,6 @@ package discord.music.message;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import discord.music.TrackScheduler;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -12,7 +11,9 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
@@ -20,14 +21,10 @@ import java.util.stream.Collectors;
 public class PlayerMessageManager implements AutoCloseable {
 	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
 	private final TrackScheduler scheduler;
-	private final Map<Long, Long> message;
-	private final Map<Long, Long> channel;
-	private long id;
+	public long id;
 
 	public PlayerMessageManager(TrackScheduler scheduler) {
 		this.scheduler = scheduler;
-		this.channel = new HashMap<>();
-		this.message = new HashMap<>();
 
 		create();
 	}
@@ -35,26 +32,12 @@ public class PlayerMessageManager implements AutoCloseable {
 	public void create() {
 		if (scheduler.getChannel() instanceof MessageChannel channel) {
 			executor.execute(() -> this.id = channel.sendMessage(MessageCreateData.fromEditData(buildAudioMessage())).complete().getIdLong());
-			this.message.put(getGuild(scheduler), this.id);
-			this.channel.put(getGuild(scheduler), channel.getIdLong());
 		}
 	}
 
 	public void cleanup() {
 		if (scheduler.getChannel() instanceof MessageChannel channel)
 			channel.deleteMessageById(id).queue();
-	}
-
-	private Long getGuild(TrackScheduler scheduler) {
-		return scheduler.getChannel().getGuild().getIdLong();
-	}
-
-	public Long getMessage(Guild guild) {
-		return message.get(guild.getIdLong());
-	}
-
-	public Long getChannel(Guild guild) {
-		return channel.get(guild.getIdLong());
 	}
 
 	@Override

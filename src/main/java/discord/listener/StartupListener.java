@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 public class StartupListener extends ListenerAdapter {
 	private final Application app;
 	private final Map<Long, TrackScheduler> scheduler;
-	private final Map<Long, Long> message;
+	public Map<Long, Long> message;
 
 	public StartupListener(Application app) {
 		this.app = app;
@@ -49,7 +49,7 @@ public class StartupListener extends ListenerAdapter {
 	}
 
 	private TrackScheduler getTrackScheduler(Guild guild) {
-		return scheduler.get(guild.getIdLong());
+		return scheduler.get(guild.getIdLong()) != null ? scheduler.get(guild.getIdLong()) : null;
 	}
 
 	@Override

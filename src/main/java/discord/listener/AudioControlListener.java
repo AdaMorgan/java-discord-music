@@ -2,8 +2,10 @@ package discord.listener;
 
 import discord.main.Application;
 import discord.music.TrackScheduler;
+import discord.music.message.PlayerMessageManager;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
@@ -66,13 +68,10 @@ public class AudioControlListener extends ListenerAdapter {
 
 	@Override
 	public void onMessageDelete(@NotNull MessageDeleteEvent event) {
-		getTrackScheduler("member", false).ifPresent(
-				controller -> {
-					if (event.getMessageIdLong() == controller.message.getMessage(event.getGuild())) {
-						controller.message.create();
-					}
-				}
-		);
+		PlayerMessageManager message = app.manager.controllers.get(event.getGuild().getIdLong()).message;
+
+		if (event.getMessageIdLong() == message.id)
+			message.create();
 	}
 
 	@Override
@@ -85,6 +84,11 @@ public class AudioControlListener extends ListenerAdapter {
             );
 			event.deferEdit().queue();
         }
+	}
+
+	@Override
+	public void onChannelDelete(ChannelDeleteEvent event) {
+		super.onChannelDelete(event);
 	}
 
 	private void inputTrackModal(@NotNull ModalInteractionEvent event, TrackScheduler scheduler) {
