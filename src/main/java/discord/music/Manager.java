@@ -66,10 +66,10 @@ public class Manager {
 	}
 
 	public Optional<TrackScheduler> getController(AudioChannel channel, boolean create, Member member) {
-		return Optional.ofNullable(controllers.computeIfAbsent(channel.getGuild().getIdLong(), id -> isValidScheduler(channel, create, member)));
+		return Optional.ofNullable(controllers.computeIfAbsent(channel.getGuild().getIdLong(), id -> isCreateScheduler(channel, create, member)));
 	}
 
-	private TrackScheduler isValidScheduler(AudioChannel channel, boolean create, Member member) {
+	private TrackScheduler isCreateScheduler(AudioChannel channel, boolean create, Member member) {
 		return create ? new TrackScheduler(this, channel, member) : null;
 	}
 }

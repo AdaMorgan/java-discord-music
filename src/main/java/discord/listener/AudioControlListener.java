@@ -2,10 +2,10 @@ package discord.listener;
 
 import discord.main.Application;
 import discord.music.TrackScheduler;
-import discord.music.message.PlayerMessageManager;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
@@ -67,9 +67,22 @@ public class AudioControlListener extends ListenerAdapter {
 	}
 
 	@Override
+	public void onChannelDelete(ChannelDeleteEvent event) {
+
+}
+
+	@Override
+	public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
+		Optional.ofNullable(app.manager.controllers.get(event.getGuild().getIdLong()))
+				.filter(controller -> event.getMember() == controller.owner)
+				.filter(controller -> event.getChannelLeft() == controller.getChannel())
+				.ifPresent(TrackScheduler::stop);
+	}
+
+	@Override
 	public void onMessageDelete(@NotNull MessageDeleteEvent event) {
 		Optional.ofNullable(app.manager.controllers.get(event.getGuild().getIdLong()))
-				.filter(controller -> controller.message.id == event.getMessageIdLong())
+				.filter(controller -> event.getMessageIdLong() == controller.message.id)
 				.ifPresent(controller -> controller.message.create());
 	}
 
@@ -85,15 +98,10 @@ public class AudioControlListener extends ListenerAdapter {
         }
 	}
 
-	@Override
-	public void onChannelDelete(@NotNull ChannelDeleteEvent event) {
-		super.onChannelDelete(event);
-	}
-
 	private void inputTrackModal(@NotNull ModalInteractionEvent event, TrackScheduler scheduler) {
 		Optional.of(scheduler)
-				.filter(s -> Objects.equals(event.getMember(), s.owner) || s.owner == null)
-				.ifPresentOrElse(s -> s.add(event.getValue("url").getAsString()),
+				.filter(controller -> Objects.equals(event.getMember(), controller.owner) || controller.owner == null)
+				.ifPresentOrElse(controller -> controller.add(event.getValue("url").getAsString()),
 						() -> event.reply("You are not the owner of this player").setEphemeral(true).queue()
 				);
 	}
