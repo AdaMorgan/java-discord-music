@@ -6,6 +6,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
@@ -45,6 +46,8 @@ public class Manager {
 		playerManager.registerSourceManager(new DeezerAudioSourceManager(
 						getConfig().getDeezerSourceManager()
 				));
+
+		playerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
 
 		AudioSourceManagers.registerRemoteSources(playerManager);
 	}

@@ -100,6 +100,7 @@ public class PlayerMessageManager implements AutoCloseable {
 			case "youtube" -> track.getInfo().artworkUrl;
 			case "spotify" -> "spotify";
 			case "soundcloud" -> "soundcloud";
+			case "twitch" -> track.getInfo().artworkUrl;
 			default -> throw new IllegalStateException("Unexpected value: " + track.getSourceManager().getSourceName());
 		};
 	}
