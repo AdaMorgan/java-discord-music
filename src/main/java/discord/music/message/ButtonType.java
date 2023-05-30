@@ -12,8 +12,7 @@ public enum ButtonType {
 	BACK("back", EmojiType.BACK),
 	ADD("add", EmojiType.ADD),
 	LOOP("loop", EmojiType.LOOP),
-	SHUFFLE("shuffle", EmojiType.SHUFFLE),
-	EQUALIZER("equalizer", EmojiType.EQUALIZER);
+	SHUFFLE("shuffle", EmojiType.SHUFFLE);
 
 	private final Button button;
 

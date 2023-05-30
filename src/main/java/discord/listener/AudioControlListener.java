@@ -55,21 +55,16 @@ public class AudioControlListener extends ListenerAdapter {
 	}
 
 	private void requireScheduler(IReplyCallback event, Consumer<TrackScheduler> handler) {
-		getTrackScheduler(Objects.requireNonNull(event.getMember()), false).ifPresentOrElse(
-				controller -> {
-					if (event.getMember().getIdLong() != controller.owner.getIdLong() && !controller.isAccess()) {
-						event.reply("You are not the owner of this player").setEphemeral(true).queue();
-						return;
-					}
-					handler.accept(controller);
-				}, () -> event.reply("No audio connection").setEphemeral(true).queue()
-		);
+		getTrackScheduler(Objects.requireNonNull(event.getMember()), false)
+				.filter(controller -> event.getMember().getIdLong() == controller.owner.getIdLong() || controller.isAccess())
+				.ifPresentOrElse(handler, () -> event.reply("No audio connection").setEphemeral(true).queue());
 	}
-
 	@Override
-	public void onChannelDelete(ChannelDeleteEvent event) {
-
-}
+	public void onChannelDelete(@NotNull ChannelDeleteEvent event) {
+		Optional.ofNullable(app.manager.controllers.get(event.getGuild().getIdLong()))
+				.filter(controller -> controller.getChannel() == null)
+				.ifPresent(TrackScheduler::stop);
+	}
 
 	@Override
 	public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {

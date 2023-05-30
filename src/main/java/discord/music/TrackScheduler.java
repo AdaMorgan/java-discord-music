@@ -29,7 +29,6 @@ public class TrackScheduler extends AudioEventAdapter {
 	private final AtomicInteger integer;
 	private final StartupListener startup;
 	private final Guild guild;
-	public Equalizer equalizer;
 
 	public Map<Integer, AudioTrack> queue;
 	public int currentIndex = 0;
@@ -44,7 +43,6 @@ public class TrackScheduler extends AudioEventAdapter {
 		this.player = manager.createAudioPlayer(this);
 		this.message = new PlayerMessageManager(this);
 		this.queue = new HashMap<>();
-		this.equalizer = new Equalizer(this);
 		this.startup = manager.app.startup;
 
 		getAudioManager().openAudioConnection(channel);
@@ -88,10 +86,6 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public void back() {
 		Optional.ofNullable(queue.get(--currentIndex)).ifPresentOrElse(this::playTrack, this::stop);
-	}
-
-	public void equalizer() {
-
 	}
 
 	public void access() {

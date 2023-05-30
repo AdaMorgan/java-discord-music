@@ -124,8 +124,7 @@ public class PlayerMessageManager implements AutoCloseable {
 						ButtonType.ADD.getButton()),
 				ActionRow.of(
 						ButtonType.LOOP.getButton().withStyle(getStyle(!scheduler.isLooped())),
-						ButtonType.SHUFFLE.getButton(),
-						ButtonType.EQUALIZER.getButton()
+						ButtonType.SHUFFLE.getButton()
 				));
 	}
 
