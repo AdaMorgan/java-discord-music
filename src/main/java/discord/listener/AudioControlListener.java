@@ -11,7 +11,6 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
@@ -103,13 +102,13 @@ public class AudioControlListener extends ListenerAdapter {
 
 	public Modal getAddModal() {
 		return Modal.create("add-track", "Add a new track")
-				.addActionRow(InputData.create("url", "Query", TextInputStyle.SHORT, 0, 100, true, "URL or search term(s)"))
+				.addActionRow(InputData.create("url", "Query", "URL or search term(s)"))
 				.build();
 	}
 
 	public Modal getStartModal() {
 		return Modal.create("add-track", "Open connection")
-				.addActionRow(InputData.create("url", "Query", TextInputStyle.SHORT, 0, 100, true, "URL or search term(s)"))
+				.addActionRow(InputData.create("url", "Query", "URL or search term(s)"))
 				.build();
 	}
 }
