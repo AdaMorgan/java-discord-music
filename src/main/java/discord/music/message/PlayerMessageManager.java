@@ -31,7 +31,7 @@ public class PlayerMessageManager implements AutoCloseable {
 
 	public void create() {
 		if (scheduler.getChannel() instanceof MessageChannel channel)
-			executor.execute(() -> this.id = channel.sendMessage(MessageCreateData.fromEditData(buildAudioMessage())).complete().getIdLong());
+			executor.execute(() -> this.id = channel.sendMessage(MessageCreateData.fromEditData(build())).complete().getIdLong());
 	}
 
 	public void cleanup() {
@@ -46,11 +46,7 @@ public class PlayerMessageManager implements AutoCloseable {
 
 	public void update() {
 		if (scheduler.getChannel() instanceof MessageChannel channel)
-			executor.execute(() -> channel.editMessageById(this.id, buildAudioMessage()).queue());
-	}
-
-	private AudioTrack getAudioTrack() {
-		return this.scheduler.player.getPlayingTrack();
+			executor.execute(() -> channel.editMessageById(this.id, build()).queue());
 	}
 
 	private String queue() {
@@ -95,17 +91,22 @@ public class PlayerMessageManager implements AutoCloseable {
 		return str.length() > 45 ? str.substring(0, 45) + "..." : str;
 	}
 
+	private String checkAudioTrackType(AudioTrack track) {
+		return track.isSeekable() ? "track" : "stream";
+	}
+
 	private String getAudioTrackArtwork(AudioTrack track) {
 		return switch (track.getSourceManager().getSourceName()) {
 			case "youtube" -> track.getInfo().artworkUrl;
 			case "spotify" -> "spotify";
 			case "soundcloud" -> "soundcloud";
+			case "apple" -> "apple";
 			case "twitch" -> track.getInfo().artworkUrl;
-			default -> throw new IllegalStateException("Unexpected value: " + track.getSourceManager().getSourceName());
+			default -> "audio";
 		};
 	}
 
-	private EmbedBuilder embed(AudioTrack track) {
+	private EmbedBuilder getEmbedAudio(AudioTrack track) {
 		return new EmbedBuilder()
 				.setTitle(getAudioTrackName(track), track.getInfo().uri)
 				.addField("Queue:", queue(), true)
@@ -115,26 +116,26 @@ public class PlayerMessageManager implements AutoCloseable {
 				.setFooter(String.valueOf(scheduler.queue.size()));
 	}
 
-	private List<ActionRow> buttons() {
+	private List<ActionRow> getAudioButton(AudioTrack track) {
 		return List.of(
 				ActionRow.of(
 						ButtonType.STOP.getButton(),
 						ButtonType.BACK.getButton(!beforeAudio()),
-						ButtonType.RESUME.getButton().withStyle(getStyle(scheduler.player.isPaused())).withEmoji(getEmoji()),
+						ButtonType.RESUME.getButton().withStyle(getStyle(scheduler.player.isPaused())).withEmoji(getEmoji()).withDisabled(!track.isSeekable()),
 						ButtonType.NEXT.getButton(!afterAudio()),
 						ButtonType.ADD.getButton()),
 				ActionRow.of(
-						ButtonType.LOOP.getButton().withStyle(getStyle(!scheduler.isLooped())),
-						ButtonType.SHUFFLE.getButton()
+						ButtonType.LOOP.getButton().withStyle(getStyle(!scheduler.isLooped())).withDisabled(!track.isSeekable()),
+						ButtonType.SHUFFLE.getButton().withDisabled(!track.isSeekable())
 				));
 	}
 
-	private synchronized MessageEditData buildAudioMessage() {
-		return Optional.ofNullable(getAudioTrack())
+	private synchronized MessageEditData build() {
+		return Optional.ofNullable(this.scheduler.player.getPlayingTrack())
 				.map(track -> new MessageEditBuilder()
-						.setContent("")
-						.setEmbeds(embed(track).build())
-						.setComponents(buttons())
+						.setContent(checkAudioTrackType(track))
+						.setEmbeds(getEmbedAudio(track).build())
+						.setComponents(getAudioButton(track))
 						.build())
 				.orElse(MessageEditData.fromContent("Loading..."));
 	}
