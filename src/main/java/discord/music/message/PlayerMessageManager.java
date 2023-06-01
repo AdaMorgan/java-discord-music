@@ -102,6 +102,7 @@ public class PlayerMessageManager implements AutoCloseable {
 			case "soundcloud" -> "soundcloud";
 			case "apple" -> "apple";
 			case "twitch" -> track.getInfo().artworkUrl;
+			case "yandex" -> "yandex";
 			default -> "audio";
 		};
 	}
