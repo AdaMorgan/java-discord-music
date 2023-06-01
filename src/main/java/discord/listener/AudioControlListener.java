@@ -47,7 +47,6 @@ public class AudioControlListener extends ListenerAdapter {
 			case "back" -> requireScheduler(event, TrackScheduler::back);
 			case "loop" -> requireScheduler(event, TrackScheduler::looped);
 			case "shuffle" -> requireScheduler(event, TrackScheduler::shuffle);
-			case "equalizer" -> event.reply("In progress...").setEphemeral(true).queue();
 		}
 
 		if(!event.isAcknowledged()) event.deferEdit().queue();
