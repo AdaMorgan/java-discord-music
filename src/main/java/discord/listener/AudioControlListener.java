@@ -50,6 +50,7 @@ public class AudioControlListener extends ListenerAdapter {
 		}
 
 		if(!event.isAcknowledged()) event.deferEdit().queue();
+
 	}
 
 	private void requireScheduler(IReplyCallback event, Consumer<TrackScheduler> handler) {
@@ -57,6 +58,7 @@ public class AudioControlListener extends ListenerAdapter {
 				.filter(controller -> event.getMember().getIdLong() == controller.owner.getIdLong() || controller.isAccess())
 				.ifPresentOrElse(handler, () -> event.reply("No audio connection").setEphemeral(true).queue());
 	}
+
 	@Override
 	public void onChannelDelete(@NotNull ChannelDeleteEvent event) {
 		Optional.ofNullable(app.manager.controllers.get(event.getGuild().getIdLong()))

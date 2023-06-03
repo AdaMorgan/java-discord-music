@@ -11,12 +11,12 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class PlayerMessageManager implements AutoCloseable {
 	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
@@ -39,36 +39,29 @@ public class PlayerMessageManager implements AutoCloseable {
 			channel.deleteMessageById(id).queue();
 	}
 
-	@Override
-	public void close() {
-		executor.shutdown();
-	}
-
 	public void update() {
 		if (scheduler.getChannel() instanceof MessageChannel channel)
 			executor.execute(() -> channel.editMessageById(this.id, build()).queue());
 	}
 
+	@Override
+	public void close() {
+		executor.shutdown();
+	}
+
 	private String queue() {
-		return scheduler.queue.entrySet().stream()
-				.filter(entry -> entry.getKey() >= scheduler.currentIndex + 1 && entry.getKey() < scheduler.currentIndex + 11)
-				.map(entry -> String.format("**%s**. %s", entry.getKey(), getAudioTrackName(entry.getValue())))
+		return scheduler.queue.stream()
+				.filter(track -> scheduler.queue.indexOf(track) > scheduler.currentIndex && scheduler.queue.indexOf(track) <= scheduler.currentIndex + 10)
+				.map(track -> String.format("%s. %s", scheduler.queue.indexOf(track) + 1, getAudioTrackName(track)))
 				.collect(Collectors.joining("\n"));
 	}
 
+	//TODO:
 	private String history() {
-		return scheduler.queue.entrySet().stream()
-				.filter(entry -> entry.getKey() >= scheduler.currentIndex - 10 && entry.getKey() < scheduler.currentIndex)
-				.map(entry -> String.format("**%s**. %s", entry.getKey(), getAudioTrackName(entry.getValue())))
-				.sorted(Comparator.reverseOrder()).collect(Collectors.joining("\n"));
-	}
-
-	private boolean beforeAudio() {
-		return scheduler.queue.keySet().stream().anyMatch(trackId -> trackId < scheduler.currentIndex);
-	}
-
-	private boolean afterAudio() {
-		return scheduler.queue.keySet().stream().anyMatch(trackId -> trackId > scheduler.currentIndex);
+		int startIndex = Math.max(scheduler.currentIndex - 10, 0);
+		return IntStream.rangeClosed(startIndex, scheduler.currentIndex - 1)
+				.mapToObj(i -> String.format("%s. %s", scheduler.queue.size() - i, getAudioTrackName(scheduler.queue.get(i))))
+				.collect(Collectors.joining("\n"));
 	}
 
 	private ButtonStyle getStyle(boolean state) {
@@ -101,7 +94,7 @@ public class PlayerMessageManager implements AutoCloseable {
 			case "spotify" -> "spotify";
 			case "soundcloud" -> "soundcloud";
 			case "apple" -> "apple";
-			case "twitch" -> track.getInfo().artworkUrl;
+			case "twitch" -> "twitch";
 			case "yandex" -> "yandex";
 			default -> "audio";
 		};
@@ -121,9 +114,9 @@ public class PlayerMessageManager implements AutoCloseable {
 		return List.of(
 				ActionRow.of(
 						ButtonType.STOP.getButton(),
-						ButtonType.BACK.getButton(!beforeAudio()),
+						ButtonType.BACK.getButton(scheduler.currentIndex == 0),
 						ButtonType.RESUME.getButton().withStyle(getStyle(scheduler.player.isPaused())).withEmoji(getEmoji()).withDisabled(!track.isSeekable()),
-						ButtonType.NEXT.getButton(!afterAudio()),
+						ButtonType.NEXT.getButton(scheduler.currentIndex == scheduler.queue.size() - 1),
 						ButtonType.ADD.getButton()),
 				ActionRow.of(
 						ButtonType.LOOP.getButton().withStyle(getStyle(!scheduler.isLooped())).withDisabled(!track.isSeekable()),

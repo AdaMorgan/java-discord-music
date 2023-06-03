@@ -5,21 +5,15 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
-import net.dv8tion.jda.api.managers.AudioManager;
 import discord.listener.StartupListener;
 import discord.music.handler.LoadResultHandler;
 import discord.music.handler.SendHandler;
 import discord.music.message.PlayerMessageManager;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import net.dv8tion.jda.api.managers.AudioManager;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -36,8 +30,8 @@ public class TrackScheduler extends AudioEventAdapter {
 	private final StartupListener startup;
 	private final Guild guild;
 
-	public Map<Integer, AudioTrack> queue;
-	public int currentIndex = 0;
+	public List<AudioTrack> queue;
+	public int currentIndex = -1;
 	private boolean looped, access = false;
 
 	public TrackScheduler(Manager manager, AudioChannel channel, Member member) {
@@ -45,10 +39,10 @@ public class TrackScheduler extends AudioEventAdapter {
 		this.channel = channel;
 		this.owner = member;
 		this.guild = this.getChannel().getGuild();
-		this.integer = new AtomicInteger(1);
+		this.integer = new AtomicInteger(0);
 		this.player = manager.createAudioPlayer(this);
 		this.message = new PlayerMessageManager(this);
-		this.queue = new HashMap<>();
+		this.queue = new ArrayList<>();
 		this.startup = manager.app.startup;
 
 		getAudioManager().openAudioConnection(channel);
@@ -64,7 +58,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	public void loadTrack(Collection<AudioTrack> tracks) {
-		tracks.forEach(track -> queue.put(integer.getAndIncrement(), track));
+		tracks.forEach(track -> queue.add(integer.getAndIncrement(), track));
 		if (this.player.getPlayingTrack() == null) play();
 		this.startup.update(this.guild);
 		message.update();
@@ -75,15 +69,25 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	private void playTrack(AudioTrack track) {
-		player.playTrack(track.makeClone());
+		if (track != player.getPlayingTrack())
+			player.playTrack(track.makeClone());
+		else
+			System.out.println("double");
 	}
 
 	public void play() {
-		Optional.of(looped).filter(value -> value).ifPresentOrElse(value -> this.playTrack(queue.get(currentIndex)), this::next);
+		if (looped)
+			this.playTrack(queue.get(currentIndex));
+		else
+			this.next();
+		message.update();
 	}
 
 	private void remove() {
-		this.queue.entrySet().removeIf(entry -> entry.getKey() == currentIndex - 11);
+		queue = IntStream.range(0, this.queue.size())
+				.filter(index -> index != currentIndex - 11)
+				.mapToObj(this.queue::get)
+				.collect(Collectors.toList());
 	}
 
 	public void next() {
@@ -121,11 +125,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	public void shuffle() {
-		List<AudioTrack> tracks = new ArrayList<>(queue.values());
-		Collections.shuffle(tracks);
-		queue = IntStream.range(0, queue.size())
-				.boxed()
-				.collect(Collectors.toMap(i -> i + 1, tracks::get, (key, value) -> value, LinkedHashMap::new));
+		Collections.shuffle(queue);
 	}
 
 	public void pause() {
