@@ -69,10 +69,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	private void playTrack(AudioTrack track) {
-		if (track != player.getPlayingTrack())
-			player.playTrack(track.makeClone());
-		else
-			System.out.println("double");
+		player.playTrack(track.makeClone());
 	}
 
 	public void play() {
