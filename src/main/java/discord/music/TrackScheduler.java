@@ -16,8 +16,6 @@ import net.dv8tion.jda.api.managers.AudioManager;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class TrackScheduler extends AudioEventAdapter {
 	public final Manager manager;
@@ -31,8 +29,9 @@ public class TrackScheduler extends AudioEventAdapter {
 	private final Guild guild;
 
 	public List<AudioTrack> queue;
-	public int currentIndex = -1;
-	private boolean looped, access = false;
+	public int currentIndex = 0;
+	private boolean loopQueue = true;
+	private boolean loopTrack, access = false;
 
 	public TrackScheduler(Manager manager, AudioChannel channel, Member member) {
 		this.manager = manager;
@@ -64,27 +63,42 @@ public class TrackScheduler extends AudioEventAdapter {
 		message.update();
 	}
 
+	public void play() {
+		loopQueue();
+		loopTrack();
+
+		message.update();
+	}
+
+	//TODO: loop the queue
+	private void loopQueue() {
+		if (loopQueue && currentIndex == queue.size() - 1)
+			this.reloadQueue();
+		else
+			this.stop();
+	}
+
+	//TODO: loop the reload queue
+	private void reloadQueue() {
+		this.queue.clear();
+	}
+
+	//TODO: loop the track
+	private void loopTrack() {
+
+	}
+
+	//TODO: make a limit on the incoming queue
+	private int limit() {
+		return 1000;
+	}
+
 	public void add(String url) {
 		this.manager.getPlayerManager().loadItem(url, new LoadResultHandler(this));
 	}
 
 	private void playTrack(AudioTrack track) {
 		player.playTrack(track.makeClone());
-	}
-
-	public void play() {
-		if (looped)
-			this.playTrack(queue.get(currentIndex));
-		else
-			this.next();
-		message.update();
-	}
-
-	private void remove() {
-		queue = IntStream.range(0, this.queue.size())
-				.filter(index -> index != currentIndex - 11)
-				.mapToObj(this.queue::get)
-				.collect(Collectors.toList());
 	}
 
 	public void next() {
@@ -108,17 +122,30 @@ public class TrackScheduler extends AudioEventAdapter {
 		return access;
 	}
 
-	public void looped() {
-		if (player.getPlayingTrack() != null) this.setLooped(!looped);
+	public void onLoopQueue() {
+		if (player.getPlayingTrack() != null) this.setLoopQueue(!loopQueue);
 		message.update();
 	}
 
-	private void setLooped(boolean state) {
-		looped = state;
+	public void setLoopQueue(boolean state) {
+		this.loopQueue = state;
 	}
 
-	public boolean isLooped() {
-		return looped;
+	public boolean isLoopQueue() {
+		return loopQueue;
+	}
+
+	public void onLoopTrack() {
+		if (player.getPlayingTrack() != null) this.setLoopTrack(!loopTrack);
+		message.update();
+	}
+
+	private void setLoopTrack(boolean state) {
+		this.loopTrack = state;
+	}
+
+	public boolean isLoopTrack() {
+		return loopTrack;
 	}
 
 	public void shuffle() {
@@ -140,7 +167,6 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	@Override
 	public void onTrackStart(AudioPlayer player, AudioTrack track) {
-		remove();
 		message.update();
 	}
 

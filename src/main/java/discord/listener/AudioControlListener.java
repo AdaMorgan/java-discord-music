@@ -45,12 +45,12 @@ public class AudioControlListener extends ListenerAdapter {
 			case "next" -> requireScheduler(event, TrackScheduler::next);
 			case "add" -> event.replyModal(getAddModal()).queue();
 			case "back" -> requireScheduler(event, TrackScheduler::back);
-			case "loop" -> requireScheduler(event, TrackScheduler::looped);
+			case "loopTrack" -> requireScheduler(event, TrackScheduler::onLoopTrack);
+			case "loopQueue" -> requireScheduler(event, TrackScheduler::onLoopQueue);
 			case "shuffle" -> requireScheduler(event, TrackScheduler::shuffle);
 		}
 
 		if(!event.isAcknowledged()) event.deferEdit().queue();
-
 	}
 
 	private void requireScheduler(IReplyCallback event, Consumer<TrackScheduler> handler) {

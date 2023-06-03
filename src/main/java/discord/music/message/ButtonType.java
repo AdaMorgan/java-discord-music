@@ -11,7 +11,8 @@ public enum ButtonType {
 	NEXT("next", EmojiType.NEXT),
 	BACK("back", EmojiType.BACK),
 	ADD("add", EmojiType.ADD),
-	LOOP("loop", EmojiType.LOOP),
+	LOOP_TRACK("loopTrack", EmojiType.LOOP),
+	LOOP_QUEUE("loopQueue", EmojiType.LOOP),
 	SHUFFLE("shuffle", EmojiType.SHUFFLE);
 
 	private final Button button;

@@ -56,7 +56,7 @@ public class PlayerMessageManager implements AutoCloseable {
 				.collect(Collectors.joining("\n"));
 	}
 
-	//TODO:
+	//TODO: history is not working properly
 	private String history() {
 		int startIndex = Math.max(scheduler.currentIndex - 10, 0);
 		return IntStream.rangeClosed(startIndex, scheduler.currentIndex - 1)
@@ -119,7 +119,8 @@ public class PlayerMessageManager implements AutoCloseable {
 						ButtonType.NEXT.getButton(scheduler.currentIndex == scheduler.queue.size() - 1),
 						ButtonType.ADD.getButton()),
 				ActionRow.of(
-						ButtonType.LOOP.getButton().withStyle(getStyle(!scheduler.isLooped())).withDisabled(!track.isSeekable()),
+						ButtonType.LOOP_TRACK.getButton().withStyle(getStyle(!scheduler.isLoopTrack())).withDisabled(!track.isSeekable()),
+						ButtonType.LOOP_QUEUE.getButton().withStyle(getStyle(!scheduler.isLoopQueue())).withDisabled(!track.isSeekable()),
 						ButtonType.SHUFFLE.getButton().withDisabled(!track.isSeekable())
 				));
 	}
