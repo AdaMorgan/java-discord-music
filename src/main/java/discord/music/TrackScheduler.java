@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,10 +31,9 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public List<AudioTrack> queue;
 	public int currentIndex = 0;
-	private boolean loopQueue = true;
-	private boolean loopTrack, access = false;
+	private boolean loopQueue, loopTrack, access = false;
 
-	public TrackScheduler(Manager manager, AudioChannel channel, Member member) {
+	public TrackScheduler(@NotNull Manager manager, AudioChannel channel, Member member) {
 		this.manager = manager;
 		this.channel = channel;
 		this.owner = member;
@@ -56,18 +56,16 @@ public class TrackScheduler extends AudioEventAdapter {
 		return manager.app.jda.getChannelById(AudioChannel.class, channel.getIdLong());
 	}
 
-	public void loadTrack(Collection<AudioTrack> tracks) {
+	public void loadTrack(@NotNull Collection<AudioTrack> tracks) {
 		tracks.forEach(track -> queue.add(integer.getAndIncrement(), track));
-		if (this.player.getPlayingTrack() == null) play();
+		if (this.player.getPlayingTrack() == null) this.playTrack(queue.get(currentIndex));
 		this.startup.update(this.guild);
 		message.update();
 	}
 
 	public void play() {
-		loopQueue();
+//		loopQueue();
 		loopTrack();
-
-		message.update();
 	}
 
 	//TODO: loop the queue
@@ -83,9 +81,11 @@ public class TrackScheduler extends AudioEventAdapter {
 		this.queue.clear();
 	}
 
-	//TODO: loop the track
 	private void loopTrack() {
-
+		if (loopTrack)
+			this.playTrack(queue.get(currentIndex));
+		else
+			this.next();
 	}
 
 	//TODO: make a limit on the incoming queue
@@ -97,7 +97,7 @@ public class TrackScheduler extends AudioEventAdapter {
 		this.manager.getPlayerManager().loadItem(url, new LoadResultHandler(this));
 	}
 
-	private void playTrack(AudioTrack track) {
+	private void playTrack(@NotNull AudioTrack track) {
 		player.playTrack(track.makeClone());
 	}
 
@@ -171,12 +171,12 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	@Override
-	public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
+	public void onTrackEnd(AudioPlayer player, AudioTrack track, @NotNull AudioTrackEndReason endReason) {
 		if (endReason.mayStartNext) play();
 	}
 
 	@Override
-	public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
+	public void onTrackException(AudioPlayer player, AudioTrack track, @NotNull FriendlyException exception) {
 		exception.printStackTrace();
 	}
 }

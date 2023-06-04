@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,27 +69,29 @@ public class PlayerMessageManager implements AutoCloseable {
 		return state ? ButtonStyle.SECONDARY : ButtonStyle.PRIMARY;
 	}
 
+	@NotNull
 	private Emoji getEmoji() {
 		return scheduler.player.isPaused() ? EmojiType.RESUME.fromUnicode() : EmojiType.PAUSE.fromUnicode();
 	}
 
-	private String formatAudioTrackName(AudioTrack track) {
+	private String formatAudioTrackName(@NotNull AudioTrack track) {
 		return String.format("%s - %s", track.getInfo().author, track.getInfo().title);
 	}
 
-	private String getAudioTrackName(AudioTrack track) {
+	private String getAudioTrackName(@NotNull AudioTrack track) {
 		return subAudioTrackByName(track.getSourceManager().getSourceName().equals("youtube") ? track.getInfo().title : formatAudioTrackName(track));
 	}
 
-	private String subAudioTrackByName(String str) {
+	private String subAudioTrackByName(@NotNull String str) {
 		return str.length() > 45 ? str.substring(0, 45) + "..." : str;
 	}
 
-	private String checkAudioTrackType(AudioTrack track) {
+	@NotNull
+	private String checkAudioTrackType(@NotNull AudioTrack track) {
 		return track.isSeekable() ? "track" : "stream";
 	}
 
-	private String getAudioTrackArtwork(AudioTrack track) {
+	private String getAudioTrackArtwork(@NotNull AudioTrack track) {
 		return switch (track.getSourceManager().getSourceName()) {
 			case "youtube" -> track.getInfo().artworkUrl;
 			case "spotify" -> "spotify";
@@ -100,8 +103,10 @@ public class PlayerMessageManager implements AutoCloseable {
 		};
 	}
 
+	@NotNull
 	private EmbedBuilder getEmbedAudio(AudioTrack track) {
 		return new EmbedBuilder()
+				.setAuthor(checkAudioTrackType(track))
 				.setTitle(getAudioTrackName(track), track.getInfo().uri)
 				.addField("Queue:", queue(), true)
 				.addField("History:", history(), true)
@@ -110,7 +115,8 @@ public class PlayerMessageManager implements AutoCloseable {
 				.setFooter(String.valueOf(scheduler.queue.size()));
 	}
 
-	private List<ActionRow> getAudioButton(AudioTrack track) {
+	@NotNull
+	private List<ActionRow> getAudioButton(@NotNull AudioTrack track) {
 		return List.of(
 				ActionRow.of(
 						ButtonType.STOP.getButton(),
@@ -128,7 +134,7 @@ public class PlayerMessageManager implements AutoCloseable {
 	private synchronized MessageEditData build() {
 		return Optional.ofNullable(this.scheduler.player.getPlayingTrack())
 				.map(track -> new MessageEditBuilder()
-						.setContent(checkAudioTrackType(track))
+						.setContent("")
 						.setEmbeds(getEmbedAudio(track).build())
 						.setComponents(getAudioButton(track))
 						.build())
