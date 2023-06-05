@@ -5,11 +5,13 @@ import discord.music.TrackScheduler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -91,11 +93,21 @@ public class PlayerMessageManager implements AutoCloseable {
 		return track.isSeekable() ? "track" : "stream";
 	}
 
-	private String getAudioTrackArtwork(@NotNull AudioTrack track) {
+	@NotNull
+	@Contract(pure = true)
+	private String getAuthor() {
+		return "";
+	}
+
+	private String getRichCustomEmoji(EmojiType type) {
+		return scheduler.getChannel().getGuild().getEmojiById(type.getCode()).getImageUrl();
+	}
+
+	private String getAuthorUrl(@NotNull AudioTrack track) {
 		return switch (track.getSourceManager().getSourceName()) {
-			case "youtube" -> track.getInfo().artworkUrl;
-			case "spotify" -> "spotify";
-			case "soundcloud" -> "soundcloud";
+			case "youtube" -> getRichCustomEmoji(EmojiType.YOUTUBE);
+			case "spotify" -> getRichCustomEmoji(EmojiType.SPOTIFY);
+			case "soundcloud" -> getRichCustomEmoji(EmojiType.SOUNDCLOUD);
 			case "apple" -> "apple";
 			case "twitch" -> "twitch";
 			case "yandex" -> "yandex";
@@ -106,11 +118,10 @@ public class PlayerMessageManager implements AutoCloseable {
 	@NotNull
 	private EmbedBuilder getEmbedAudio(AudioTrack track) {
 		return new EmbedBuilder()
-				.setAuthor(checkAudioTrackType(track))
+				.setAuthor(track.getSourceManager().getSourceName(), null, getAuthorUrl(track))
 				.setTitle(getAudioTrackName(track), track.getInfo().uri)
 				.addField("Queue:", queue(), true)
 				.addField("History:", history(), true)
-				.setThumbnail(getAudioTrackArtwork(track))
 				.setColor(ColorType.PRIMARY.toColor())
 				.setFooter(String.valueOf(scheduler.queue.size()));
 	}

@@ -28,6 +28,10 @@ public enum EmojiType {
         this.code = code;
     }
 
+    public long getCode() {
+        return this.code;
+    }
+
     public Emoji fromUnicode() {
         return Emoji.fromCustom(this.name, this.code, false);
     }

@@ -60,32 +60,26 @@ public class TrackScheduler extends AudioEventAdapter {
 		tracks.forEach(track -> queue.add(integer.getAndIncrement(), track));
 		if (this.player.getPlayingTrack() == null) this.playTrack(queue.get(currentIndex));
 		this.startup.update(this.guild);
-		message.update();
+		message.create();
 	}
 
 	public void play() {
-//		loopQueue();
+		loopQueue();
 		loopTrack();
 	}
 
 	//TODO: loop the queue
 	private void loopQueue() {
-		if (loopQueue && currentIndex == queue.size() - 1)
-			this.reloadQueue();
-		else
-			this.stop();
-	}
-
-	//TODO: loop the reload queue
-	private void reloadQueue() {
-		this.queue.clear();
+		Optional.of(this)
+				.filter(value -> loopTrack && currentIndex == queue.size() - 1)
+				.ifPresentOrElse(controller -> this.playTrack(queue.get(this.currentIndex = 0)), this::stop);
 	}
 
 	private void loopTrack() {
-		if (loopTrack)
-			this.playTrack(queue.get(currentIndex));
-		else
-			this.next();
+		Optional.of(this)
+				.filter(state -> getAudioManager().isConnected())
+				.filter(state -> loopTrack)
+				.ifPresentOrElse(state -> this.playTrack(queue.get(currentIndex)), this::next);
 	}
 
 	//TODO: make a limit on the incoming queue
@@ -167,6 +161,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	@Override
 	public void onTrackStart(AudioPlayer player, AudioTrack track) {
+		//TODO: ERROR: when using the player again
 		message.update();
 	}
 
