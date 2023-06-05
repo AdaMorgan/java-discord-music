@@ -39,6 +39,10 @@ public class Config {
 		return content.getString("deezer.key");
 	}
 
+	public int getQueueLimit() {
+		return Integer.parseInt(content.getString("discord.limit"));
+	}
+
 	public static Config readFromFile(String path) {
 		try(FileReader reader = new FileReader(path)) {
 			return new Config(new Toml().read(reader));

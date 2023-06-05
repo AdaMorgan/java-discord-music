@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TrackScheduler extends AudioEventAdapter {
 	public final Manager manager;
 	public final AudioPlayer player;
-
 	private final AudioChannel channel;
 	public final PlayerMessageManager message;
 	public final Member owner;
@@ -81,11 +80,6 @@ public class TrackScheduler extends AudioEventAdapter {
 			this.playTrack(queue.get(currentIndex));
 		else
 			next();
-	}
-
-	//TODO: make a limit on the incoming queue
-	private int limit() {
-		return 1000;
 	}
 
 	public void add(String url) {

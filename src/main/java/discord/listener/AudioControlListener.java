@@ -96,9 +96,16 @@ public class AudioControlListener extends ListenerAdapter {
 	private void inputTrackModal(@NotNull ModalInteractionEvent event, TrackScheduler scheduler) {
 		Optional.of(scheduler)
 				.filter(controller -> Objects.equals(event.getMember(), controller.owner) || controller.owner == null)
-				.ifPresentOrElse(controller -> controller.add(event.getValue("url").getAsString()),
+				.ifPresentOrElse(controller -> loadTrack(event, controller),
 						() -> event.reply("You are not the owner of this player").setEphemeral(true).queue()
 				);
+	}
+
+	private void loadTrack(ModalInteractionEvent event, TrackScheduler scheduler) {
+		if (scheduler.queue.size() + 100 < app.config.getQueueLimit())
+			scheduler.add(event.getValue("url").getAsString());
+		else
+			event.reply("you have exceeded the limit 1000").setEphemeral(true).queue();
 	}
 
 	public Modal getAddModal() {
