@@ -32,6 +32,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	public List<AudioTrack> queue;
 	public int currentIndex = 0;
 	private boolean loopQueue, loopTrack, access = false;
+	private boolean connection;
 
 	public TrackScheduler(@NotNull Manager manager, AudioChannel channel, Member member) {
 		this.manager = manager;
@@ -43,6 +44,7 @@ public class TrackScheduler extends AudioEventAdapter {
 		this.message = new PlayerMessageManager(this);
 		this.queue = new ArrayList<>();
 		this.startup = manager.app.startup;
+		this.connection = true;
 
 		getAudioManager().openAudioConnection(channel);
 		channel.getGuild().getAudioManager().setSendingHandler(new SendHandler(player));
@@ -60,26 +62,25 @@ public class TrackScheduler extends AudioEventAdapter {
 		tracks.forEach(track -> queue.add(integer.getAndIncrement(), track));
 		if (this.player.getPlayingTrack() == null) this.playTrack(queue.get(currentIndex));
 		this.startup.update(this.guild);
-		message.create();
 	}
 
 	public void play() {
 		loopQueue();
-		loopTrack();
+		if (connection) loopTrack();
 	}
 
-	//TODO: loop the queue
 	private void loopQueue() {
-		Optional.of(this)
-				.filter(value -> loopTrack && currentIndex == queue.size() - 1)
-				.ifPresentOrElse(controller -> this.playTrack(queue.get(this.currentIndex = 0)), this::stop);
+		if(loopQueue && currentIndex == queue.size() - 1)
+			this.playTrack(queue.get(this.currentIndex = 0));
+		else
+			stop();
 	}
 
 	private void loopTrack() {
-		Optional.of(this)
-				.filter(state -> getAudioManager().isConnected())
-				.filter(state -> loopTrack)
-				.ifPresentOrElse(state -> this.playTrack(queue.get(currentIndex)), this::next);
+		if (loopTrack)
+			this.playTrack(queue.get(currentIndex));
+		else
+			next();
 	}
 
 	//TODO: make a limit on the incoming queue
@@ -155,13 +156,13 @@ public class TrackScheduler extends AudioEventAdapter {
 		getAudioManager().closeAudioConnection();
 		this.manager.controllers.remove(getChannel().getGuild().getIdLong());
 		message.cleanup();
+		connection = false;
 
 		this.startup.update(this.guild);
 	}
 
 	@Override
 	public void onTrackStart(AudioPlayer player, AudioTrack track) {
-		//TODO: ERROR: when using the player again
 		message.update();
 	}
 

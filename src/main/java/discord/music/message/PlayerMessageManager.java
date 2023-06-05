@@ -5,7 +5,6 @@ import discord.music.TrackScheduler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -22,7 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class PlayerMessageManager implements AutoCloseable {
-	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
+	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private final TrackScheduler scheduler;
 	public long id;
 
@@ -44,7 +43,7 @@ public class PlayerMessageManager implements AutoCloseable {
 
 	public void update() {
 		if (scheduler.getChannel() instanceof MessageChannel channel)
-			executor.execute(() -> channel.editMessageById(this.id, build()).queue());
+			executor.execute(() -> channel.editMessageById(this.id, build()).complete());
 	}
 
 	@Override
