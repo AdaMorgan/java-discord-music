@@ -40,7 +40,7 @@ public class Config {
 	}
 
 	public int getQueueLimit() {
-		return Integer.parseInt(content.getString("discord.limit"));
+		return content.getLong("discord.limit", 1000L).intValue();
 	}
 
 	public static Config readFromFile(String path) {

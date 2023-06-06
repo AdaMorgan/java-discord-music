@@ -14,6 +14,10 @@ import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -25,7 +29,7 @@ public class AudioControlListener extends ListenerAdapter {
 		this.app = app;
 	}
 
-	private Optional<TrackScheduler> getTrackScheduler(Member member, boolean create) {
+	private Optional<TrackScheduler> getTrackScheduler(@NotNull Member member, boolean create) {
 		return Optional.ofNullable(member.getVoiceState())
 				.map(GuildVoiceState::getChannel)
 				.flatMap(channel -> app.manager.getController(channel, create, member));
@@ -50,10 +54,10 @@ public class AudioControlListener extends ListenerAdapter {
 			case "shuffle" -> requireScheduler(event, TrackScheduler::shuffle);
 		}
 
-		if(!event.isAcknowledged()) event.deferEdit().queue();
+		if (!event.isAcknowledged()) event.deferEdit().queue();
 	}
 
-	private void requireScheduler(IReplyCallback event, Consumer<TrackScheduler> handler) {
+	private void requireScheduler(@NotNull IReplyCallback event, Consumer<TrackScheduler> handler) {
 		getTrackScheduler(Objects.requireNonNull(event.getMember()), false)
 				.filter(controller -> event.getMember().getIdLong() == controller.owner.getIdLong() || controller.isAccess())
 				.ifPresentOrElse(handler, () -> event.reply("No audio connection").setEphemeral(true).queue());
@@ -83,14 +87,14 @@ public class AudioControlListener extends ListenerAdapter {
 
 	@Override
 	public void onModalInteraction(@NotNull ModalInteractionEvent event) {
-        if (event.getModalId().equals("add-track")) {
+		if (event.getModalId().equals("add-track")) {
 			if (event.isAcknowledged()) return;
 			getTrackScheduler(Objects.requireNonNull(event.getMember()), true)
 					.ifPresentOrElse(scheduler -> inputTrackModal(event, scheduler),
 							() -> event.reply("Cannot create audio connection").setEphemeral(true).queue()
-            );
+					);
 			event.deferEdit().queue();
-        }
+		}
 	}
 
 	private void inputTrackModal(@NotNull ModalInteractionEvent event, TrackScheduler scheduler) {
@@ -101,7 +105,13 @@ public class AudioControlListener extends ListenerAdapter {
 				);
 	}
 
-	private void loadTrack(ModalInteractionEvent event, TrackScheduler scheduler) {
+	//TODO:
+	private void validUrl(@NotNull ModalInteractionEvent event) {
+
+	}
+
+	//TODO:
+	private void loadTrack(ModalInteractionEvent event, @NotNull TrackScheduler scheduler) {
 		if (scheduler.queue.size() + 100 < app.config.getQueueLimit())
 			scheduler.add(event.getValue("url").getAsString());
 		else
