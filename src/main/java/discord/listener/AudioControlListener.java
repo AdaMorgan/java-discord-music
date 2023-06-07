@@ -1,6 +1,7 @@
 package discord.listener;
 
 import discord.main.Application;
+import discord.main.Config;
 import discord.music.TrackScheduler;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -14,10 +15,6 @@ import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -112,10 +109,10 @@ public class AudioControlListener extends ListenerAdapter {
 
 	//TODO:
 	private void loadTrack(ModalInteractionEvent event, @NotNull TrackScheduler scheduler) {
-		if (scheduler.queue.size() + 100 < app.config.getQueueLimit())
+		if (scheduler.queue.size() <= app.config.getQueueLimit())
 			scheduler.add(event.getValue("url").getAsString());
 		else
-			event.reply("you have exceeded the limit 1000").setEphemeral(true).queue();
+			event.reply("you have exceeded the limit 1000 tracks").setEphemeral(true).queue();
 	}
 
 	public Modal getAddModal() {
