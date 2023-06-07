@@ -109,7 +109,7 @@ public class AudioControlListener extends ListenerAdapter {
 
 	//TODO:
 	private void loadTrack(ModalInteractionEvent event, @NotNull TrackScheduler scheduler) {
-		if (scheduler.queue.size() <= app.config.getQueueLimit())
+		if (scheduler.queue.size() + 1 <= app.config.getQueueLimit())
 			scheduler.add(event.getValue("url").getAsString());
 		else
 			event.reply("you have exceeded the limit 1000 tracks").setEphemeral(true).queue();
