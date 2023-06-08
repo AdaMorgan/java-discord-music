@@ -1,5 +1,6 @@
 package discord.listener;
 
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import discord.main.Application;
 import discord.music.TrackScheduler;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
@@ -14,10 +15,8 @@ import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -100,22 +99,15 @@ public class AudioControlListener extends ListenerAdapter {
 	private void inputTrackModal(@NotNull ModalInteractionEvent event, TrackScheduler scheduler) {
 		Optional.of(scheduler)
 				.filter(controller -> Objects.equals(event.getMember(), controller.owner) || controller.owner == null)
-				.ifPresentOrElse(controller -> loadTrack(event, controller),
+				.ifPresentOrElse(controller -> scheduler.add(event.getValue("url").getAsString()),
 						() -> event.reply("You are not the owner of this player").setEphemeral(true).queue()
 				);
 	}
 
 	//TODO:
 	private void validUrl(@NotNull ModalInteractionEvent event) {
-
-	}
-
-	//TODO:
-	private void loadTrack(ModalInteractionEvent event, @NotNull TrackScheduler scheduler) {
-		if (scheduler.queue.size() + 100 < app.config.getQueueLimit())
-			scheduler.add(event.getValue("url").getAsString());
-		else
-			event.reply("you have exceeded the limit 1000").setEphemeral(true).queue();
+		String url = event.getValue("url").getAsString();
+		event.reply("Invalid url").setEphemeral(true).queue();
 	}
 
 	public Modal getAddModal() {

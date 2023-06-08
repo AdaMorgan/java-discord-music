@@ -6,6 +6,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import discord.main.Application;
@@ -35,6 +36,8 @@ public class Manager {
 				getConfig().getEmailPassword());
 
 		youtubeManager.setPlaylistPageCount(1000);
+
+		playerManager.registerSourceManager(SoundCloudAudioSourceManager.createDefault());
 
 		playerManager.registerSourceManager(youtubeManager);
 		playerManager.registerSourceManager(new SpotifySourceManager(null,

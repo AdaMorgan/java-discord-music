@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class TrackScheduler extends AudioEventAdapter {
 	public final Manager manager;
@@ -58,9 +59,14 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	public void loadTrack(@NotNull Collection<AudioTrack> tracks) {
-		tracks.forEach(track -> queue.add(integer.getAndIncrement(), track));
+		tracks.forEach(this::limit);
 		if (this.player.getPlayingTrack() == null) this.playTrack(queue.get(currentIndex));
 		this.startup.update(this.guild);
+		this.message.update();
+	}
+
+	private void limit(AudioTrack track) {
+		if (queue.size() < manager.app.config.getQueueLimit()) queue.add(integer.getAndIncrement(), track);
 	}
 
 	public void play() {
