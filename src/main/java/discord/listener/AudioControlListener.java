@@ -1,7 +1,7 @@
 package discord.listener;
 
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import discord.main.Application;
+import discord.main.Config;
 import discord.music.TrackScheduler;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -15,8 +15,6 @@ import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -99,15 +97,13 @@ public class AudioControlListener extends ListenerAdapter {
 	private void inputTrackModal(@NotNull ModalInteractionEvent event, TrackScheduler scheduler) {
 		Optional.of(scheduler)
 				.filter(controller -> Objects.equals(event.getMember(), controller.owner) || controller.owner == null)
-				.ifPresentOrElse(controller -> scheduler.add(event.getValue("url").getAsString()),
+				.ifPresentOrElse(controller -> this.add(event, controller),
 						() -> event.reply("You are not the owner of this player").setEphemeral(true).queue()
 				);
 	}
 
-	//TODO:
-	private void validUrl(@NotNull ModalInteractionEvent event) {
-		String url = event.getValue("url").getAsString();
-		event.reply("Invalid url").setEphemeral(true).queue();
+	private void add(@NotNull ModalInteractionEvent event, TrackScheduler scheduler) {
+		scheduler.add(event.getValue("url").getAsString());
 	}
 
 	public Modal getAddModal() {

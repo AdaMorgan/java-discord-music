@@ -6,6 +6,7 @@ import discord.music.message.ButtonType;
 import discord.music.message.ColorType;
 import discord.music.message.EmojiType;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -47,6 +48,11 @@ public class StartupListener extends ListenerAdapter {
 	@Override
 	public void onReady(@NotNull ReadyEvent event) {
 		event.getJDA().getGuilds().forEach(this::setupGuild);
+		event.getJDA().getPresence().setActivity(activity());
+	}
+
+	private Activity activity() {
+		return Activity.listening(String.format("music | %s", app.jda.getGuilds().size()));
 	}
 
 	private TrackScheduler getTrackScheduler(Guild guild) {

@@ -27,7 +27,6 @@ public class Application {
 		jda = JDABuilder.createDefault(config.getToken())
 				.setStatus(OnlineStatus.ONLINE)
 				.enableIntents(GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.MESSAGE_CONTENT)
-				.setActivity(Activity.listening("music"))
 
 				.addEventListeners(startup)
 				.addEventListeners(new AudioControlListener(this))
