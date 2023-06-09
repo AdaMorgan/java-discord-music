@@ -32,11 +32,12 @@ public class LoadResultHandler implements AudioLoadResultHandler {
 
 	@Override
 	public void noMatches() {
-		// TODO document why this method is empty
+
 	}
 
 	@Override
 	public void loadFailed(FriendlyException exception) {
+		exception.printStackTrace();
 		this.queue.play();
 	}
 }

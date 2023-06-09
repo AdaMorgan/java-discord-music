@@ -1,7 +1,6 @@
 package discord.listener;
 
 import discord.main.Application;
-import discord.main.Config;
 import discord.music.TrackScheduler;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -15,6 +14,7 @@ import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -49,6 +49,7 @@ public class AudioControlListener extends ListenerAdapter {
 			case "loopTrack" -> requireScheduler(event, TrackScheduler::onLoopTrack);
 			case "loopQueue" -> requireScheduler(event, TrackScheduler::onLoopQueue);
 			case "shuffle" -> requireScheduler(event, TrackScheduler::shuffle);
+			case "search" -> event.replyModal(getSearchModal()).queue();
 		}
 
 		if (!event.isAcknowledged()) event.deferEdit().queue();
@@ -84,7 +85,7 @@ public class AudioControlListener extends ListenerAdapter {
 
 	@Override
 	public void onModalInteraction(@NotNull ModalInteractionEvent event) {
-		if (event.getModalId().equals("add-track")) {
+		if (event.getModalId().equals("add-track") || event.getModalId().equals("search-track")) {
 			if (event.isAcknowledged()) return;
 			getTrackScheduler(Objects.requireNonNull(event.getMember()), true)
 					.ifPresentOrElse(scheduler -> inputTrackModal(event, scheduler),
@@ -102,8 +103,31 @@ public class AudioControlListener extends ListenerAdapter {
 				);
 	}
 
-	private void add(@NotNull ModalInteractionEvent event, TrackScheduler scheduler) {
-		scheduler.add(event.getValue("url").getAsString());
+	private void add(ModalInteractionEvent event, TrackScheduler scheduler) {
+		switch (event.getModalId()) {
+			case "add-track" -> url(event, scheduler);
+			case "search-track" -> search(event, scheduler);
+		}
+	}
+
+	private void url(@NotNull ModalInteractionEvent event, @NotNull TrackScheduler scheduler) {
+		String url = event.getValue("url").getAsString();
+
+		scheduler.add(url);
+	}
+
+	private void search(@NotNull ModalInteractionEvent event, @NotNull TrackScheduler scheduler) {
+		scheduler.add(search(event));
+	}
+
+	private String search(@NotNull ModalInteractionEvent event) {
+		return String.format("ytsearch: %s", event.getValue("url").getAsString());
+	}
+
+	private Modal getSearchModal() {
+		return Modal.create("search-track", "Add a new track")
+				.addActionRow(InputData.create("url", "Query", "URL or search term(s)"))
+				.build();
 	}
 
 	public Modal getAddModal() {

@@ -117,7 +117,8 @@ public class StartupListener extends ListenerAdapter {
 	private List<ItemComponent> buttons(Guild guild) {
 		return ActionRow.of(
 				ButtonType.START.getButton().withDisabled(getTrackScheduler(guild) != null),
-				ButtonType.ACCESS.getButton().withEmoji(access(guild))
+				ButtonType.SEARCH.getButton(getTrackScheduler(guild) != null),
+				ButtonType.ACCESS.getButton().withEmoji(access(guild)).withDisabled(getTrackScheduler(guild) == null)
 		).getComponents();
 	}
 

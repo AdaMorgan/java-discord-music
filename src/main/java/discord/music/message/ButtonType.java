@@ -1,11 +1,11 @@
 package discord.music.message;
 
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 public enum ButtonType {
 	START("start", EmojiType.START),
 	ACCESS("access", EmojiType.PRIVATE),
-	STREAM("stream", EmojiType.STREAM),
 	STOP("stop", EmojiType.STOP),
 	RESUME("resume", EmojiType.RESUME),
 	NEXT("next", EmojiType.NEXT),
@@ -13,9 +13,10 @@ public enum ButtonType {
 	ADD("add", EmojiType.ADD),
 	LOOP_TRACK("loopTrack", EmojiType.LOOP),
 	LOOP_QUEUE("loopQueue", EmojiType.LOOP),
+	SEARCH("search", EmojiType.SEARCH),
 	SHUFFLE("shuffle", EmojiType.SHUFFLE);
 
-	private final Button button;
+    private final Button button;
 
 	ButtonType(String id, EmojiType emoji) {
 		this.button = Button.primary("music:" + id, emoji.fromUnicode());
