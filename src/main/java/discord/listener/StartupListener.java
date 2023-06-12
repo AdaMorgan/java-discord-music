@@ -8,6 +8,7 @@ import discord.music.message.EmojiType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
@@ -43,6 +44,19 @@ public class StartupListener extends ListenerAdapter {
 	@Override
 	public void onGuildJoin(@NotNull GuildJoinEvent event) {
 		setupGuild(event.getGuild());
+
+		sendMessageEmbed(event.getGuild().getCommunityUpdatesChannel());
+	}
+
+	private void sendMessageEmbed(TextChannel channel) {
+		if (channel != null) channel.sendMessageEmbeds(embedJoin().build()).queue();
+	}
+
+	private EmbedBuilder embedJoin() {
+		return new EmbedBuilder()
+				.setAuthor("")
+				.setThumbnail("")
+				.setDescription("");
 	}
 
 	@Override
