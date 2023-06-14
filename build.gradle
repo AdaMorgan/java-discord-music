@@ -20,24 +20,30 @@ dependencies {
     implementation 'com.github.walkyst:lavaplayer-fork:075a611'
     implementation "com.github.TopiSenpai.LavaSrc:lavasrc:3.2.0"
 
-    implementation 'org.codehaus.groovy:groovy-all:3.0.11'
-
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
+
     implementation 'ch.qos.logback:logback-classic:1.4.6'
 
     testImplementation platform('org.junit:junit-bom:5.9.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
 
-test {
-    useJUnitPlatform()
+jar {
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+
+    manifest {
+        attributes 'Main-Class' : 'discord.main.Application'
+    }
+
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
 }
 
-tasks.register('runMain', JavaExec) {
-    dependsOn 'classes'
-    mainClass = 'discord.main.Application'
-    args = ['config.toml']
-    classpath = sourceSets.main.runtimeClasspath
+test {
+    useJUnitPlatform()
 }
 
 wrapper {
