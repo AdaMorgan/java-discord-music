@@ -1,7 +1,10 @@
 package discord.listener;
 
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import discord.main.Application;
 import discord.music.TrackScheduler;
+import discord.music.handler.LoadResultHandler;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
@@ -110,10 +113,15 @@ public class AudioControlListener extends ListenerAdapter {
 		}
 	}
 
-	private void url(@NotNull ModalInteractionEvent event, @NotNull TrackScheduler scheduler) {
-		String url = event.getValue("url").getAsString();
+	public boolean isLoaded() {
+		return true;
+	}
 
-		scheduler.add(url);
+	private void url(@NotNull ModalInteractionEvent event, @NotNull TrackScheduler scheduler) {
+		if (isLoaded())
+			scheduler.add(event.getValue("url").getAsString());
+		else
+			event.reply("Load failed!").setEphemeral(true).queue();
 	}
 
 	private void search(@NotNull ModalInteractionEvent event, @NotNull TrackScheduler scheduler) {
