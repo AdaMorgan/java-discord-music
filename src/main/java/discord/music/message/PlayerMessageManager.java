@@ -3,10 +3,8 @@ package discord.music.message;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import discord.music.TrackScheduler;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageActivity;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -15,6 +13,8 @@ import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -62,10 +62,17 @@ public class PlayerMessageManager implements AutoCloseable {
 
 	//TODO: history is not working properly
 	private String history() {
-		int startIndex = Math.max(scheduler.currentIndex - 10, 0);
-		return IntStream.rangeClosed(startIndex, scheduler.currentIndex - 1)
-				.mapToObj(i -> String.format("%s. %s", scheduler.queue.size() - i, getAudioTrackName(scheduler.queue.get(i))))
-				.collect(Collectors.joining("\n"));
+		int start = scheduler.currentIndex  - 1;
+		int end = Math.max(scheduler.currentIndex - 10, 0);
+
+		StringBuilder builder = new StringBuilder();
+		for (int i = start; i >= end; i--) {
+			builder.append(i + 1).append(". ").append(getAudioTrackName(scheduler.queue.get(i))).append('\n');
+		}
+
+		builder.setLength(builder.length() - 1); // remove trailing \n
+
+		return builder.toString();
 	}
 
 	private ButtonStyle getStyle(boolean state) {
@@ -100,7 +107,8 @@ public class PlayerMessageManager implements AutoCloseable {
 		return "";
 	}
 
-	private String getRichCustomEmoji(EmojiType type) {
+	@NotNull
+	private String getRichCustomEmoji(@NotNull EmojiType type) {
 		return scheduler.getChannel().getGuild().getEmojiById(type.getCode()).getImageUrl();
 	}
 
@@ -117,13 +125,13 @@ public class PlayerMessageManager implements AutoCloseable {
 	}
 
 	@NotNull
-	private EmbedBuilder getEmbedAudio(AudioTrack track) {
+	private EmbedBuilder getEmbedAudio(@NotNull AudioTrack track) {
 		return new EmbedBuilder()
 				.setAuthor(track.getSourceManager().getSourceName(), null, getAuthorUrl(track))
 				.setTitle(getAudioTrackName(track), track.getInfo().uri)
 				.addField("Queue:", queue(), true)
 				.addField("History:", history(), true)
-				.setColor(ColorType.PRIMARY.toColor())
+				.setColor(ColorType.DARK.toColor())
 				.setFooter(String.valueOf(scheduler.queue.size()));
 	}
 
@@ -139,8 +147,7 @@ public class PlayerMessageManager implements AutoCloseable {
 				ActionRow.of(
 						ButtonType.LOOP_TRACK.getButton().withStyle(getStyle(!scheduler.isLoopTrack())).withDisabled(!track.isSeekable()),
 						ButtonType.LOOP_QUEUE.getButton().withStyle(getStyle(!scheduler.isLoopQueue())).withDisabled(!track.isSeekable()),
-						ButtonType.SHUFFLE.getButton().withDisabled(!track.isSeekable()),
-						ButtonType.SEARCH.getButton().withDisabled(!track.isSeekable())
+						ButtonType.SHUFFLE.getButton().withDisabled(!track.isSeekable())
 				));
 	}
 

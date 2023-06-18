@@ -1,6 +1,5 @@
 package discord.music.message;
 
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 public enum ButtonType {
@@ -13,7 +12,6 @@ public enum ButtonType {
 	ADD("add", EmojiType.ADD),
 	LOOP_TRACK("loopTrack", EmojiType.LOOP),
 	LOOP_QUEUE("loopQueue", EmojiType.LOOP),
-	SEARCH("search", EmojiType.SEARCH),
 	SHUFFLE("shuffle", EmojiType.SHUFFLE);
 
     private final Button button;

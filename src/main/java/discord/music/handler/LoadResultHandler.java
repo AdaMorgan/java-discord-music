@@ -5,6 +5,8 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import discord.music.TrackScheduler;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,17 +24,16 @@ public class LoadResultHandler implements AudioLoadResultHandler {
 	}
 
 	@Override
-	public void playlistLoaded(AudioPlaylist playlist) {
+	public void playlistLoaded(@NotNull AudioPlaylist playlist) {
 		this.scheduler.loadTrack(playlist.isSearchResult() ? Collections.singleton(playlist.getTracks().get(0)) : new ArrayList<>(playlist.getTracks()));
 	}
 
 	@Override
 	public void noMatches() {
-
 	}
 
 	@Override
-	public void loadFailed(FriendlyException exception) {
+	public void loadFailed(@NotNull FriendlyException exception) {
 		exception.printStackTrace();
 	}
 }
