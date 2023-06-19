@@ -3,10 +3,9 @@ package discord.music.message;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import discord.music.TrackScheduler;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageActivity;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -15,12 +14,16 @@ import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.temporal.TemporalAccessor;
+import java.util.Base64;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class PlayerMessageManager implements AutoCloseable {
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -62,9 +65,10 @@ public class PlayerMessageManager implements AutoCloseable {
 
 	//TODO: history is not working properly
 	private String history() {
-		int startIndex = Math.max(scheduler.currentIndex - 10, 0);
-		return IntStream.rangeClosed(startIndex, scheduler.currentIndex - 1)
-				.mapToObj(i -> String.format("%s. %s", scheduler.queue.size() - i, getAudioTrackName(scheduler.queue.get(i))))
+		return scheduler.queue.stream()
+				.filter(track -> scheduler.queue.indexOf(track) < scheduler.currentIndex && scheduler.queue.indexOf(track) >= scheduler.currentIndex - 10)
+				.map(track -> String.format("%s. %s", scheduler.queue.indexOf(track) + 1, getAudioTrackName(track)))
+				.sorted(Comparator.reverseOrder())
 				.collect(Collectors.joining("\n"));
 	}
 
@@ -82,10 +86,10 @@ public class PlayerMessageManager implements AutoCloseable {
 	}
 
 	private String getAudioTrackName(@NotNull AudioTrack track) {
-		return subAudioTrackByName(track.getSourceManager().getSourceName().equals("youtube") ? track.getInfo().title : formatAudioTrackName(track));
+		return sub(track.getSourceManager().getSourceName().equals("youtube") ? track.getInfo().title : formatAudioTrackName(track));
 	}
 
-	private String subAudioTrackByName(@NotNull String str) {
+	private String sub(@NotNull String str) {
 		return str.length() > 45 ? str.substring(0, 45) + "..." : str;
 	}
 
@@ -96,15 +100,17 @@ public class PlayerMessageManager implements AutoCloseable {
 
 	@NotNull
 	@Contract(pure = true)
-	private String getAuthor() {
-		return "";
+	private User getAuthor() {
+		return scheduler.owner.getUser();
 	}
 
-	private String getRichCustomEmoji(EmojiType type) {
+	@NotNull
+	private String getRichCustomEmoji(@NotNull EmojiType type) {
 		return scheduler.getChannel().getGuild().getEmojiById(type.getCode()).getImageUrl();
 	}
 
-	private String getAuthorUrl(@NotNull AudioTrack track) {
+
+	private String getImageURI(@NotNull AudioTrack track) {
 		return switch (track.getSourceManager().getSourceName()) {
 			case "youtube" -> getRichCustomEmoji(EmojiType.YOUTUBE);
 			case "spotify" -> getRichCustomEmoji(EmojiType.SPOTIFY);
@@ -116,15 +122,20 @@ public class PlayerMessageManager implements AutoCloseable {
 		};
 	}
 
+	private String author() {
+		return String.format("%s | %s", getAuthor().getAsTag().split("#")[0], scheduler.queue.size());
+	}
+
 	@NotNull
 	private EmbedBuilder getEmbedAudio(AudioTrack track) {
 		return new EmbedBuilder()
-				.setAuthor(track.getSourceManager().getSourceName(), null, getAuthorUrl(track))
+				.setAuthor(author(), null, getAuthor().getAvatarUrl())
 				.setTitle(getAudioTrackName(track), track.getInfo().uri)
+				.setThumbnail(getImageURI(track))
 				.addField("Queue:", queue(), true)
 				.addField("History:", history(), true)
 				.setColor(ColorType.PRIMARY.toColor())
-				.setFooter(String.valueOf(scheduler.queue.size()));
+				.setFooter(String.valueOf(this.id));
 	}
 
 	@NotNull
