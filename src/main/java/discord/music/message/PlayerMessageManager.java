@@ -150,8 +150,7 @@ public class PlayerMessageManager implements AutoCloseable {
 				ActionRow.of(
 						ButtonType.LOOP_TRACK.getButton().withStyle(getStyle(!scheduler.isLoopTrack())).withDisabled(!track.isSeekable()),
 						ButtonType.LOOP_QUEUE.getButton().withStyle(getStyle(!scheduler.isLoopQueue())).withDisabled(!track.isSeekable()),
-						ButtonType.SHUFFLE.getButton().withDisabled(!track.isSeekable()),
-						ButtonType.SEARCH.getButton().withDisabled(!track.isSeekable())
+						ButtonType.SHUFFLE.getButton().withDisabled(!track.isSeekable())
 				));
 	}
 
