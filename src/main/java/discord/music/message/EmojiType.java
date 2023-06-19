@@ -17,8 +17,7 @@ public enum EmojiType {
     BACK("youtube", 1098879196580806767L),
     ADD("youtube", 1098879196580806767L),
     LOOP("youtube", 1098879196580806767L),
-    SHUFFLE("youtube", 1098879196580806767L),
-    SEARCH("youtube", 1098879196580806767L);
+    SHUFFLE("youtube", 1098879196580806767L);
 
     private final String name;
     private final long code;

@@ -14,7 +14,6 @@ import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -49,7 +48,6 @@ public class AudioControlListener extends ListenerAdapter {
 			case "loopTrack" -> requireScheduler(event, TrackScheduler::onLoopTrack);
 			case "loopQueue" -> requireScheduler(event, TrackScheduler::onLoopQueue);
 			case "shuffle" -> requireScheduler(event, TrackScheduler::shuffle);
-			case "search" -> event.replyModal(getSearchModal()).queue();
 		}
 
 		if (!event.isAcknowledged()) event.deferEdit().queue();
@@ -57,8 +55,15 @@ public class AudioControlListener extends ListenerAdapter {
 
 	private void requireScheduler(@NotNull IReplyCallback event, Consumer<TrackScheduler> handler) {
 		getTrackScheduler(Objects.requireNonNull(event.getMember()), false)
-				.filter(controller -> event.getMember().getIdLong() == controller.owner.getIdLong() || controller.isAccess())
-				.ifPresentOrElse(handler, () -> event.reply("No audio connection").setEphemeral(true).queue());
+				.filter(TrackScheduler::isConnection)
+				.ifPresentOrElse(controller -> requireHandler(controller, event, handler), () -> event.reply("Could not connect to the player").setEphemeral(true).queue());
+	}
+
+	private void requireHandler(@NotNull TrackScheduler controller, @NotNull IReplyCallback event, Consumer<TrackScheduler> handler) {
+		if (event.getMember().getIdLong() == controller.owner.getIdLong() || controller.isAccess())
+			handler.accept(controller);
+		else
+			event.reply("You are not the owner of this player").setEphemeral(true).queue();
 	}
 
 	@Override
@@ -99,35 +104,12 @@ public class AudioControlListener extends ListenerAdapter {
 		Optional.of(scheduler)
 				.filter(controller -> Objects.equals(event.getMember(), controller.owner) || controller.owner == null)
 				.ifPresentOrElse(controller -> this.add(event, controller),
-						() -> event.reply("You are not the owner of this player").setEphemeral(true).queue()
+						() -> event.reply("You are not the owner of this player").setEphemeral(true).closeResources().queue()
 				);
 	}
 
-	private void add(ModalInteractionEvent event, TrackScheduler scheduler) {
-		switch (event.getModalId()) {
-			case "add-track" -> url(event, scheduler);
-			case "search-track" -> search(event, scheduler);
-		}
-	}
-
-	private void url(@NotNull ModalInteractionEvent event, @NotNull TrackScheduler scheduler) {
-		String url = event.getValue("url").getAsString();
-
-		scheduler.add(url);
-	}
-
-	private void search(@NotNull ModalInteractionEvent event, @NotNull TrackScheduler scheduler) {
-		scheduler.add(search(event));
-	}
-
-	private String search(@NotNull ModalInteractionEvent event) {
-		return String.format("ytsearch: %s", event.getValue("url").getAsString());
-	}
-
-	private Modal getSearchModal() {
-		return Modal.create("search-track", "Add a new track")
-				.addActionRow(InputData.create("url", "Query", "URL or search term(s)"))
-				.build();
+	private void add(@NotNull ModalInteractionEvent event, @NotNull TrackScheduler scheduler) {
+		scheduler.add(event.getValue("url").getAsString());
 	}
 
 	public Modal getAddModal() {

@@ -74,10 +74,12 @@ public class TrackScheduler extends AudioEventAdapter {
 	}
 
 	private void loopQueue() {
-		if(loopQueue && currentIndex == queue.size() - 1)
-			this.playTrack(queue.get(this.currentIndex = 0));
-		else
-			stop();
+		if (currentIndex == queue.size() - 1) {
+			if (loopQueue)
+				this.playTrack(queue.get(this.currentIndex = 0));
+			else
+				stop();
+		}
 	}
 
 	private void loopTrack() {
@@ -93,6 +95,10 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	private void playTrack(@NotNull AudioTrack track) {
 		player.playTrack(track.makeClone());
+	}
+
+	public boolean isConnection() {
+		return connection;
 	}
 
 	public void next() {
