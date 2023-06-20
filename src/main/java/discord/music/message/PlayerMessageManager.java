@@ -115,10 +115,11 @@ public class PlayerMessageManager implements AutoCloseable {
 			case "youtube" -> getRichCustomEmoji(EmojiType.YOUTUBE);
 			case "spotify" -> getRichCustomEmoji(EmojiType.SPOTIFY);
 			case "soundcloud" -> getRichCustomEmoji(EmojiType.SOUNDCLOUD);
-			case "apple" -> "apple";
-			case "twitch" -> "twitch";
+			case "deezer" -> getRichCustomEmoji(EmojiType.DEEZER);
+			case "apple" -> getRichCustomEmoji(EmojiType.APPLE);
+			case "twitch" -> getRichCustomEmoji(EmojiType.TWITCH);
 			case "yandex" -> "yandex";
-			default -> "audio";
+			default -> getRichCustomEmoji(EmojiType.MUSIC);
 		};
 	}
 

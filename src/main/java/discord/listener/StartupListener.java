@@ -24,10 +24,8 @@ import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public class StartupListener extends ListenerAdapter {
