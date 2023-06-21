@@ -56,19 +56,11 @@ public class PlayerMessageManager implements AutoCloseable {
 		executor.shutdown();
 	}
 
-	private String queue() {
+	public String queue(int start, int end, boolean reverse) {
 		return scheduler.queue.stream()
-				.filter(track -> scheduler.queue.indexOf(track) > scheduler.currentIndex && scheduler.queue.indexOf(track) <= scheduler.currentIndex + 10)
-				.map(track -> String.format("%s. %s", scheduler.queue.indexOf(track) + 1, getAudioTrackName(track)))
-				.collect(Collectors.joining("\n"));
-	}
-
-	//TODO: history is not working properly
-	private String history() {
-		return scheduler.queue.stream()
-				.filter(track -> scheduler.queue.indexOf(track) < scheduler.currentIndex && scheduler.queue.indexOf(track) >= scheduler.currentIndex - 10)
-				.map(track -> String.format("%s. %s", scheduler.queue.indexOf(track) + 1, getAudioTrackName(track)))
-				.sorted(Comparator.reverseOrder())
+				.filter(track -> scheduler.queue.indexOf(track) >= start && scheduler.queue.indexOf(track) < end)
+				.map(track -> String.format("%s. %s", scheduler.queue.indexOf(track) + 1, sub(track.getInfo().title)))
+				.sorted(reverse ? Comparator.reverseOrder() : Comparator.naturalOrder())
 				.collect(Collectors.joining("\n"));
 	}
 
@@ -129,12 +121,15 @@ public class PlayerMessageManager implements AutoCloseable {
 
 	@NotNull
 	private EmbedBuilder getEmbedAudio(AudioTrack track) {
+		System.out.println(queue(scheduler.currentIndex + 1, scheduler.currentIndex + 10, false));
+		System.out.println(queue(scheduler.currentIndex - 10, scheduler.currentIndex, true));
+
 		return new EmbedBuilder()
 				.setAuthor(author(), null, getAuthor().getAvatarUrl())
 				.setTitle(getAudioTrackName(track), track.getInfo().uri)
 				.setThumbnail(getImageURI(track))
-				.addField("Queue:", queue(), true)
-				.addField("History:", history(), true)
+				.addField("Queue:", queue(scheduler.currentIndex, scheduler.currentIndex + 10, false), true)
+				.addField("History:", queue(scheduler.currentIndex - 10, scheduler.currentIndex, true), true)
 				.setColor(ColorType.PRIMARY.toColor())
 				.setFooter(String.valueOf(this.id));
 	}
@@ -143,11 +138,11 @@ public class PlayerMessageManager implements AutoCloseable {
 	private List<ActionRow> getAudioButton(@NotNull AudioTrack track) {
 		return List.of(
 				ActionRow.of(
-						ButtonType.STOP.getButton(),
-						ButtonType.BACK.getButton(scheduler.currentIndex == 0),
-						ButtonType.RESUME.getButton().withStyle(getStyle(scheduler.player.isPaused())).withEmoji(getEmoji()).withDisabled(!track.isSeekable()),
-						ButtonType.NEXT.getButton(scheduler.currentIndex == scheduler.queue.size() - 1),
-						ButtonType.ADD.getButton()),
+//						ButtonType.STOP.getButton(),
+//						ButtonType.BACK.getButton(scheduler.currentIndex == 0),
+//						ButtonType.RESUME.getButton().withStyle(getStyle(scheduler.player.isPaused())).withEmoji(getEmoji()).withDisabled(!track.isSeekable()),
+						ButtonType.NEXT.getButton(scheduler.currentIndex == scheduler.queue.size() - 1)),
+//						ButtonType.ADD.getButton()));
 				ActionRow.of(
 						ButtonType.LOOP_TRACK.getButton().withStyle(getStyle(!scheduler.isLoopTrack())).withDisabled(!track.isSeekable()),
 						ButtonType.LOOP_QUEUE.getButton().withStyle(getStyle(!scheduler.isLoopQueue())).withDisabled(!track.isSeekable()),

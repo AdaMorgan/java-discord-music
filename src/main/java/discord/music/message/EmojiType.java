@@ -22,6 +22,7 @@ public enum EmojiType {
     BACK("back", 1120752321635287111L),
     ADD("add", 1120752517618348153L),
     LOOP("loop", 1120758260983660566L),
+    LOOP_PLAYLIST("loop_playlist", 1L),
     SHUFFLE("shuffle", 1120758268520841336L),
     STREAM("stream", 1120758539317686362L);
 
