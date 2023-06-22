@@ -89,6 +89,14 @@ public class TrackScheduler extends AudioEventAdapter {
 			next();
 	}
 
+	public String checkAsTag() {
+		return owner.getUser().getAsTag().split("#")[1].equals("0000") ? owner.getUser().getAsTag().split("#")[0] : owner.getUser().getAsTag();
+	}
+
+	public boolean isSeekable() {
+		return this.player.getPlayingTrack().isSeekable();
+	}
+
 	public void add(String url) {
 		this.manager.getPlayerManager().loadItem(url, new LoadResultHandler(this));
 	}

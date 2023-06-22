@@ -115,7 +115,7 @@ public class StartupListener extends ListenerAdapter {
 
 	private String author(Guild guild) {
 		return Optional.ofNullable(getTrackScheduler(guild))
-				.map(scheduler -> scheduler.owner.getUser().getAsTag())
+				.map(TrackScheduler::checkAsTag)
 				.orElse("Free");
 	}
 
