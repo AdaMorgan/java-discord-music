@@ -3,6 +3,10 @@ package discord.music.message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 public enum EmojiType {
+    INFO("info", 1L),
+    WARNING("warning", 1L),
+    ERROR("error", 1L),
+
     YOUTUBE("youtube", 1120750136386134096L),
     SPOTIFY("spotify", 1120750131646570496L),
     SOUNDCLOUD("soundcloud", 1120750130145009714L),

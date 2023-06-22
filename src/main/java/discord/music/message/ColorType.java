@@ -3,9 +3,10 @@ package discord.music.message;
 import java.awt.*;
 
 public enum ColorType {
-    PRIMARY("#5865F2"),
+    WARNING(""),
+    CTA("#5865F2"),
     SUCCESS("#57F287"),
-    DANGER("#ED4245");
+    DESTRUCTIVE("#ED4245");
 
     private final String code;
 

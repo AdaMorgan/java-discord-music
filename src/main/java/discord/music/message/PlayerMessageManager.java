@@ -127,7 +127,7 @@ public class PlayerMessageManager implements AutoCloseable {
 				.setAuthor(owner(track), null, scheduler.owner.getUser().getAvatarUrl())
 				.setTitle(track.getInfo().title, track.getInfo().uri)
 				.setThumbnail(getImageURI(track))
-				.setColor(ColorType.PRIMARY.toColor())
+				.setColor(ColorType.CTA.toColor())
 				.setFooter(String.valueOf(this.id));
 	}
 

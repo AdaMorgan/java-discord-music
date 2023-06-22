@@ -109,7 +109,7 @@ public class StartupListener extends ListenerAdapter {
 
 	private Color color(Guild guild) {
 		return Optional.ofNullable(getTrackScheduler(guild))
-				.map(scheduler -> ColorType.DANGER.toColor())
+				.map(scheduler -> ColorType.DESTRUCTIVE.toColor())
 				.orElse(ColorType.SUCCESS.toColor());
 	}
 
