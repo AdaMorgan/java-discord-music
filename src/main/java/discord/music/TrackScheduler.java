@@ -99,6 +99,8 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public void add(String url) {
 		this.manager.getPlayerManager().loadItem(url, new LoadResultHandler(this));
+		message.update();
+		System.out.println(this.queue.size());
 	}
 
 	private void playTrack(@NotNull AudioTrack track) {

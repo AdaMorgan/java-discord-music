@@ -107,18 +107,13 @@ public class PlayerMessageManager implements AutoCloseable {
 		return String.format("%s | %s", scheduler.checkAsTag(), checkAudioTrackType(track));
 	}
 
-	private String getField(String str) {
-		return scheduler.queue.size() < 1 ? str : " ";
-	}
-
 	private EmbedBuilder getEmbedQueue(AudioTrack track) {
-		if (scheduler.queue.size() > 1 || scheduler.isSeekable()) {
-			return createEmbedQueue(track)
-					.addField(getField("Queue:"), queue(scheduler.currentIndex + 1, Math.min(scheduler.currentIndex + 10, scheduler.queue.size()), false), true)
-					.addField(getField("History:"), queue(Math.max(scheduler.currentIndex - 10, 0), scheduler.currentIndex - 1, true), true);
-		} else {
-			return createEmbedQueue(track);
-		}
+		return Optional.ofNullable(scheduler)
+				.filter(controller -> controller.queue.size() > 0 || !track.isSeekable())
+				.map(controller -> createEmbedQueue(track)
+						.addField("Queue:", queue(controller.currentIndex + 1, Math.min(controller.currentIndex + 10, controller.queue.size()), false), true)
+						.addField("History:", queue(Math.max(controller.currentIndex - 10, 0), controller.currentIndex - 1, true), true))
+				.orElse(createEmbedQueue(track));
 	}
 
 	@NotNull
