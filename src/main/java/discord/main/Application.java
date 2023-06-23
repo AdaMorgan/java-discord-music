@@ -1,7 +1,6 @@
 package discord.main;
 
 import discord.listener.AudioControlListener;
-import discord.listener.StateListener;
 import discord.listener.StartupListener;
 import discord.music.Manager;
 import net.dv8tion.jda.api.JDA;
@@ -28,7 +27,6 @@ public class Application {
 				.setStatus(OnlineStatus.ONLINE)
 				.enableIntents(GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.MESSAGE_CONTENT)
 
-				.addEventListeners(new StateListener())
 				.addEventListeners(startup)
 				.addEventListeners(new AudioControlListener(this))
 				.build();
