@@ -27,6 +27,7 @@ public class TrackScheduler extends AudioEventAdapter {
 	private final AtomicInteger integer;
 	private final StartupListener startup;
 	private final Guild guild;
+	private boolean list;
 
 	public List<AudioTrack> queue;
 	public int currentIndex = 0;
@@ -117,6 +118,19 @@ public class TrackScheduler extends AudioEventAdapter {
 
 	public void back() {
 		Optional.ofNullable(queue.get(--currentIndex)).ifPresentOrElse(this::playTrack, this::stop);
+	}
+
+	public void list() {
+		if (player.getPlayingTrack() != null) this.setList(!list);
+		message.update();
+	}
+
+	public void setList(boolean state) {
+		list = state;
+	}
+
+	public boolean isList() {
+		return list;
 	}
 
 	public void access() {

@@ -13,7 +13,8 @@ public enum ButtonType {
 	STREAM("stream", EmojiType.STREAM),
 	LOOP_TRACK("loopTrack", EmojiType.LOOP),
 	LOOP_PLAYLIST("loopQueue", EmojiType.LOOP_PLAYLIST),
-	SHUFFLE("shuffle", EmojiType.SHUFFLE);
+	SHUFFLE("shuffle", EmojiType.SHUFFLE),
+	LIST("list", EmojiType.LOOP_PLAYLIST);
 
     private final Button button;
 

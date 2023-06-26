@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
+import net.dv8tion.jda.api.events.user.update.UserUpdateOnlineStatusEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -48,6 +49,7 @@ public class AudioControlListener extends ListenerAdapter {
 			case "loopTrack" -> requireScheduler(event, TrackScheduler::onLoopTrack);
 			case "loopQueue" -> requireScheduler(event, TrackScheduler::onLoopQueue);
 			case "shuffle" -> requireScheduler(event, TrackScheduler::shuffle);
+			case "list" -> requireScheduler(event, TrackScheduler::list);
 		}
 
 		if (!event.isAcknowledged()) event.deferEdit().queue();
@@ -99,6 +101,8 @@ public class AudioControlListener extends ListenerAdapter {
 			event.deferEdit().queue();
 		}
 	}
+
+	
 
 	private void inputTrackModal(@NotNull ModalInteractionEvent event, TrackScheduler scheduler) {
 		Optional.of(scheduler)

@@ -51,11 +51,19 @@ public class PlayerMessageManager implements AutoCloseable {
 		executor.shutdown();
 	}
 
-	private String queue(int startInclusive, int endInclusive, boolean reverse) {
+	private String queue(int count, boolean reverse) {
+		int startInclusive = scheduler.currentIndex + (reverse ? count * -1 : 1);
+		int endInclusive = scheduler.currentIndex + (reverse ? -1 : count);
+
+		if (startInclusive < 0) {
+			startInclusive = 0;
+		} else if (endInclusive >= scheduler.queue.size()) {
+			endInclusive = scheduler.queue.size() - 1;
+		}
+
 		return IntStream.rangeClosed(startInclusive, endInclusive)
-				.boxed().sorted(reverse ? Comparator.reverseOrder() : Comparator.naturalOrder())
-				.filter(i -> scheduler.queue.size() > 1)
-				.map(i -> String.format("%s\\. %s", i + 1, sub(getAudioTrackName(scheduler.queue.get(i)))))
+				.mapToObj(index -> String.format("%s\\. %s", index + 1, sub(getAudioTrackName(scheduler.queue.get(index)))))
+				.sorted(reverse ? Comparator.reverseOrder() : Comparator.naturalOrder())
 				.collect(Collectors.joining("\n"));
 	}
 
@@ -90,6 +98,10 @@ public class PlayerMessageManager implements AutoCloseable {
 		return scheduler.getChannel().getGuild().getEmojiById(type.getCode()).getImageUrl();
 	}
 
+	private String owner(AudioTrack track) {
+		return String.format("%s | %s", scheduler.checkAsTag(), checkAudioTrackType(track));
+	}
+
 	private String getImageURI(@NotNull AudioTrack track) {
 		return switch (track.getSourceManager().getSourceName()) {
 			case "youtube" -> getRichCustomEmoji(EmojiType.YOUTUBE);
@@ -103,17 +115,22 @@ public class PlayerMessageManager implements AutoCloseable {
 		};
 	}
 
-	private String owner(AudioTrack track) {
-		return String.format("%s | %s", scheduler.checkAsTag(), checkAudioTrackType(track));
-	}
-
 	private EmbedBuilder getEmbedQueue(AudioTrack track) {
 		return Optional.ofNullable(scheduler)
 				.filter(controller -> controller.queue.size() > 0 || !track.isSeekable())
-				.map(controller -> createEmbedQueue(track)
-						.addField("Queue:", queue(controller.currentIndex + 1, Math.min(controller.currentIndex + 10, controller.queue.size()), false), true)
-						.addField("History:", queue(Math.max(controller.currentIndex - 10, 0), controller.currentIndex - 1, true), true))
+				.map(controller -> setEmbedQueue(track))
 				.orElse(createEmbedQueue(track));
+	}
+
+	private EmbedBuilder setEmbedQueue(AudioTrack track) {
+		if (scheduler.isList())
+			return createEmbedQueue(track)
+					.addField("Queue:", queue(10, false), true)
+					.addField("History:", queue(10, true), true);
+		else
+			return createEmbedQueue(track)
+					.addField("Next:", queue(1, false), true)
+					.addField("Prev:", queue(1, true), true);
 	}
 
 	@NotNull
@@ -138,7 +155,8 @@ public class PlayerMessageManager implements AutoCloseable {
 				ActionRow.of(
 						ButtonType.LOOP_TRACK.getButton().withStyle(getStyle(!scheduler.isLoopTrack())).withDisabled(!track.isSeekable()),
 						ButtonType.LOOP_PLAYLIST.getButton().withStyle(getStyle(!scheduler.isLoopQueue())).withDisabled(!track.isSeekable()),
-						ButtonType.SHUFFLE.getButton().withDisabled(!track.isSeekable())
+						ButtonType.SHUFFLE.getButton().withDisabled(!track.isSeekable()),
+						ButtonType.LIST.getButton().withStyle(getStyle(!scheduler.isList()))
 				));
 	}
 
