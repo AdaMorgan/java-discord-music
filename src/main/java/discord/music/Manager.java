@@ -30,10 +30,7 @@ public class Manager {
 
 		playerManager = new DefaultAudioPlayerManager();
 
-		YoutubeAudioSourceManager youtubeManager = new YoutubeAudioSourceManager(
-				true,
-				getConfig().getEmail(),
-				getConfig().getEmailPassword());
+		YoutubeAudioSourceManager youtubeManager = new YoutubeAudioSourceManager();
 
 		youtubeManager.setPlaylistPageCount(1000);
 

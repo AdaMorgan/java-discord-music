@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
-import net.dv8tion.jda.api.events.user.update.UserUpdateOnlineStatusEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -58,7 +57,7 @@ public class AudioControlListener extends ListenerAdapter {
 	private void requireScheduler(@NotNull IReplyCallback event, Consumer<TrackScheduler> handler) {
 		getTrackScheduler(Objects.requireNonNull(event.getMember()), false)
 				.filter(TrackScheduler::isConnection)
-				.ifPresentOrElse(controller -> requireHandler(controller, event, handler), () -> event.reply("Could not connect to the player").setEphemeral(true).queue());
+				.ifPresentOrElse(controller -> requireHandler(controller, event, handler), () -> event.reply("Could not connect to the player").setEphemeral(true).complete());
 	}
 
 	private void requireHandler(@NotNull TrackScheduler controller, @NotNull IReplyCallback event, Consumer<TrackScheduler> handler) {
@@ -102,14 +101,10 @@ public class AudioControlListener extends ListenerAdapter {
 		}
 	}
 
-	
-
 	private void inputTrackModal(@NotNull ModalInteractionEvent event, TrackScheduler scheduler) {
 		Optional.of(scheduler)
 				.filter(controller -> Objects.equals(event.getMember(), controller.owner) || controller.owner == null)
-				.ifPresentOrElse(controller -> this.add(event, controller),
-						() -> event.reply("You are not the owner of this player").setEphemeral(true).closeResources().queue()
-				);
+				.ifPresentOrElse(controller -> this.add(event, controller), () -> event.reply("You are not the owner of this player").setEphemeral(true).closeResources().queue());
 	}
 
 	private void add(@NotNull ModalInteractionEvent event, @NotNull TrackScheduler scheduler) {
