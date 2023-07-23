@@ -1,7 +1,7 @@
-package discord.music.message;
+package bot.music.message;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import discord.music.TrackScheduler;
+import bot.music.TrackScheduler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;

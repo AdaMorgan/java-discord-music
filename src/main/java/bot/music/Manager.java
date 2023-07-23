@@ -1,4 +1,4 @@
-package discord.music;
+package bot.music;
 
 import com.github.topisenpai.lavasrc.deezer.DeezerAudioSourceManager;
 import com.github.topisenpai.lavasrc.spotify.SpotifySourceManager;
@@ -9,8 +9,8 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
-import discord.main.Application;
-import discord.main.Config;
+import bot.main.Application;
+import bot.main.Config;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 
@@ -69,10 +69,10 @@ public class Manager {
 	}
 
 	public Optional<TrackScheduler> getController(AudioChannel channel, boolean create, Member member) {
-		return Optional.ofNullable(controllers.computeIfAbsent(channel.getGuild().getIdLong(), id -> isCreateScheduler(channel, create, member)));
+		return Optional.ofNullable(controllers.computeIfAbsent(channel.getGuild().getIdLong(), id -> createScheduler(channel, create, member)));
 	}
 
-	private TrackScheduler isCreateScheduler(AudioChannel channel, boolean create, Member member) {
+	private TrackScheduler createScheduler(AudioChannel channel, boolean create, Member member) {
 		return create ? new TrackScheduler(this, channel, member) : null;
 	}
 }

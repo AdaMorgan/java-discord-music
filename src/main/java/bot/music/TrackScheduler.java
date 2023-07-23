@@ -1,14 +1,14 @@
-package discord.music;
+package bot.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import discord.listener.StartupListener;
-import discord.music.handler.LoadResultHandler;
-import discord.music.handler.SendHandler;
-import discord.music.message.PlayerMessageManager;
+import bot.listener.StartupListener;
+import bot.music.handler.LoadResultHandler;
+import bot.music.handler.SendHandler;
+import bot.music.message.PlayerMessageManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;

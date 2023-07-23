@@ -1,10 +1,10 @@
-package discord.listener;
+package bot.listener;
 
-import discord.main.Application;
-import discord.music.TrackScheduler;
-import discord.music.message.ButtonType;
-import discord.music.message.ColorType;
-import discord.music.message.EmojiType;
+import bot.main.Application;
+import bot.music.TrackScheduler;
+import bot.music.message.ButtonType;
+import bot.music.message.ColorType;
+import bot.music.message.EmojiType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;

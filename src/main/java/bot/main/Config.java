@@ -1,4 +1,4 @@
-package discord.main;
+package bot.main;
 
 import com.moandjiezana.toml.Toml;
 

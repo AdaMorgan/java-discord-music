@@ -1,4 +1,4 @@
-package discord.music.message;
+package bot.music.message;
 
 import java.awt.*;
 

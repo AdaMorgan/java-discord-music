@@ -1,7 +1,7 @@
-package discord.listener;
+package bot.listener;
 
-import discord.main.Application;
-import discord.music.TrackScheduler;
+import bot.main.Application;
+import bot.music.TrackScheduler;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
