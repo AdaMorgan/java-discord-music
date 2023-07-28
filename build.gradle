@@ -29,7 +29,7 @@ jar {
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
 
     manifest {
-        attributes 'Main-Class' : 'discord.main.Application'
+        attributes 'Main-Class' : 'bot.main.Application'
     }
 
     from {

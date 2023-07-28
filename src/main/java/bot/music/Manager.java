@@ -30,19 +30,19 @@ public class Manager {
 
 		playerManager = new DefaultAudioPlayerManager();
 
-		YoutubeAudioSourceManager youtubeManager = new YoutubeAudioSourceManager();
-
+		YoutubeAudioSourceManager youtubeManager = new YoutubeAudioSourceManager(true, null, null);
 		youtubeManager.setPlaylistPageCount(1000);
+		playerManager.registerSourceManager(youtubeManager);
 
 		playerManager.registerSourceManager(SoundCloudAudioSourceManager.createDefault());
 
-		playerManager.registerSourceManager(youtubeManager);
 		playerManager.registerSourceManager(new SpotifySourceManager(null,
 						getConfig().getSpotifyClientId(),
 						getConfig().getSpotifyClientSecret(),
 						"US",
 						playerManager
 				));
+
 		playerManager.registerSourceManager(new DeezerAudioSourceManager(
 						getConfig().getDeezerSourceManager()
 				));

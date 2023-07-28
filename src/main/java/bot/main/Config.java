@@ -12,19 +12,11 @@ public class Config {
 	}
 
 	public String getToken() {
-		return content.getString("discord.token");
+		return content.getString("bot.token");
 	}
 
 	public String getTextChannelByName() {
-		return content.getString("discord.channel");
-	}
-
-	public String getEmail() {
-		return content.getString("email.email");
-	}
-
-	public String getEmailPassword() {
-		return content.getString("email.password");
+		return content.getString("bot.channel");
 	}
 
 	public String getSpotifyClientId() {
@@ -40,7 +32,7 @@ public class Config {
 	}
 
 	public int getQueueLimit() {
-		return content.getLong("discord.limit", 1000L).intValue();
+		return content.getLong("bot.limit", 1000L).intValue();
 	}
 
 	public static Config readFromFile(String path) {
