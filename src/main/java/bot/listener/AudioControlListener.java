@@ -2,6 +2,7 @@ package bot.listener;
 
 import bot.main.Application;
 import bot.music.TrackScheduler;
+import bot.music.utils.InputData;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;

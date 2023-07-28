@@ -1,4 +1,4 @@
-package bot.listener;
+package bot.music.utils;
 
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
