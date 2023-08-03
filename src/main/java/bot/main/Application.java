@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 
 public class Application {
-	public final Manager manager = new Manager(this);
+	public final Manager manager;
 	public final JDA jda;
 	public final Config config;
 	public final StartupListener startup;
@@ -22,6 +22,7 @@ public class Application {
 
 	public Application(@NotNull Config config) {
 		this.config = config;
+		this.manager = new Manager(this);
 		this.startup = new StartupListener(this);
 
 		jda = JDABuilder.createDefault(config.getToken())

@@ -13,6 +13,7 @@ import bot.main.Application;
 import bot.main.Config;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Optional;
@@ -30,30 +31,30 @@ public class Manager {
 
 		playerManager = new DefaultAudioPlayerManager();
 
-		YoutubeAudioSourceManager youtubeManager = new YoutubeAudioSourceManager(true, null, null);
+		YoutubeAudioSourceManager youtubeManager = new YoutubeAudioSourceManager(true, getConfig().getEmailUsername(), getConfig().getEmailPassword());
 		youtubeManager.setPlaylistPageCount(1000);
 		playerManager.registerSourceManager(youtubeManager);
 
 		playerManager.registerSourceManager(SoundCloudAudioSourceManager.createDefault());
 
 		playerManager.registerSourceManager(new SpotifySourceManager(null,
-						getConfig().getSpotifyClientId(),
-						getConfig().getSpotifyClientSecret(),
-						"US",
-						playerManager
-				));
+				getConfig().getSpotifyClientId(),
+				getConfig().getSpotifyClientSecret(),
+				"US",
+				playerManager
+		));
 
 		playerManager.registerSourceManager(new DeezerAudioSourceManager(
-						getConfig().getDeezerSourceManager()
-				));
+				getConfig().getDeezerSourceManager()
+		));
 
 		playerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
 
 		AudioSourceManagers.registerRemoteSources(playerManager);
 	}
 
-	public static Config getConfig() {
-		return Config.readFromFile("config.toml");
+	public Config getConfig() {
+		return this.app.config;
 	}
 
 	public AudioPlayer createAudioPlayer(TrackScheduler scheduler) {
@@ -68,7 +69,7 @@ public class Manager {
 		return playerManager;
 	}
 
-	public Optional<TrackScheduler> getController(AudioChannel channel, boolean create, Member member) {
+	public Optional<TrackScheduler> getController(@NotNull AudioChannel channel, boolean create, Member member) {
 		return Optional.ofNullable(controllers.computeIfAbsent(channel.getGuild().getIdLong(), id -> createScheduler(channel, create, member)));
 	}
 

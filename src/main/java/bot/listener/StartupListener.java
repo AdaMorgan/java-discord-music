@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
@@ -52,6 +53,7 @@ public class StartupListener extends ListenerAdapter {
 		if (channel != null) channel.sendMessageEmbeds(embedJoin().build()).queue();
 	}
 
+	@NotNull
 	private EmbedBuilder embedJoin() {
 		return new EmbedBuilder()
 				.setAuthor("")
@@ -69,7 +71,7 @@ public class StartupListener extends ListenerAdapter {
 		return Activity.listening(String.format("music | %s", app.jda.getGuilds().size()));
 	}
 
-	private TrackScheduler getTrackScheduler(Guild guild) {
+	private TrackScheduler getTrackScheduler(@NotNull Guild guild) {
 		return scheduler.getOrDefault(guild.getIdLong(), null);
 	}
 
@@ -93,16 +95,16 @@ public class StartupListener extends ListenerAdapter {
 	}
 
 	@Override
-	public void onMessageDelete(MessageDeleteEvent event) {
+	public void onMessageDelete(@NotNull MessageDeleteEvent event) {
 		if (this.message.get(event.getGuild().getIdLong()) != null && event.getMessageIdLong() == this.message.get(event.getGuild().getIdLong()))
 			setupMessage(event.getGuild(), event.getChannel());
 	}
 
-	private void setupMessage(Guild guild, MessageChannel channel) {
+	private void setupMessage(Guild guild, @NotNull MessageChannel channel) {
 		channel.sendMessage(MessageCreateData.fromEditData(message(guild))).queue(message -> this.message.put(guild.getIdLong(), message.getIdLong()));
 	}
 
-	private void performForChannel(Guild guild, Consumer<MessageChannel> handler) {
+	private void performForChannel(@NotNull Guild guild, Consumer<MessageChannel> handler) {
 		guild.getTextChannels().stream()
 				.filter(channel -> channel.getName().equals(app.config.getTextChannelByName()))
 				.findAny()
@@ -128,6 +130,7 @@ public class StartupListener extends ListenerAdapter {
 				.orElse(EmojiType.PRIVATE.fromUnicode());
 	}
 
+	@NotNull
 	private List<ItemComponent> buttons(Guild guild) {
 		return ActionRow.of(
 				ButtonType.START.getButton().withDisabled(getTrackScheduler(guild) != null),
@@ -135,6 +138,7 @@ public class StartupListener extends ListenerAdapter {
 		).getComponents();
 	}
 
+	@NotNull
 	private EmbedBuilder embed(Guild guild) {
 		return new EmbedBuilder()
 				.setDescription("Menu")
@@ -142,6 +146,7 @@ public class StartupListener extends ListenerAdapter {
 				.setFooter(author(guild));
 	}
 
+	@NotNull
 	private MessageEditData message(Guild guild) {
 		return new MessageEditBuilder()
 				.setContent("")

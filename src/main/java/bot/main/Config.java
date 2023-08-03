@@ -23,6 +23,14 @@ public class Config {
 		return content.getString("spotify.client.id");
 	}
 
+	public String getEmailUsername() {
+		return content.getString("email.username");
+	}
+
+	public String getEmailPassword() {
+		return content.getString("email.password");
+	}
+
 	public String getSpotifyClientSecret() {
 		return content.getString("spotify.client.secret");
 	}

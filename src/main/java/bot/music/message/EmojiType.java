@@ -28,7 +28,8 @@ public enum EmojiType {
     LOOP("loop", 1120758260983660566L),
     LOOP_PLAYLIST("loop_playlist", 1120958578812010496L),
     SHUFFLE("shuffle", 1120758268520841336L),
-    STREAM("stream", 1120758539317686362L);
+    STREAM("stream", 1120758539317686362L),
+    TRASH("trash", 1L);
 
     private final String name;
     private final long code;
