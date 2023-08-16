@@ -102,10 +102,11 @@ public class AudioControlListener extends ListenerAdapter {
 		}
 	}
 
-	private void inputTrackModal(@NotNull ModalInteractionEvent event, TrackScheduler scheduler) {
-		Optional.of(scheduler)
-				.filter(controller -> Objects.equals(event.getMember(), controller.owner) || controller.owner == null)
-				.ifPresentOrElse(controller -> this.add(event, controller), () -> event.reply("You are not the owner of this player").setEphemeral(true).closeResources().queue());
+	private void inputTrackModal(@NotNull ModalInteractionEvent event, @NotNull TrackScheduler scheduler) {
+		if (Objects.equals(event.getMember(), scheduler.owner) || scheduler.owner == null)
+			this.add(event, scheduler);
+		else
+			event.reply("You are not the owner of this player").setEphemeral(true).closeResources().queue();
 	}
 
 	private void add(@NotNull ModalInteractionEvent event, @NotNull TrackScheduler scheduler) {
