@@ -1,16 +1,8 @@
 package bot.music;
 
-import com.github.topisenpai.lavasrc.deezer.DeezerAudioSourceManager;
-import com.github.topisenpai.lavasrc.spotify.SpotifySourceManager;
+import bot.main.Application;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
-import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
-import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
-import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
-import bot.main.Application;
-import bot.main.Config;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import org.jetbrains.annotations.NotNull;
@@ -28,33 +20,7 @@ public class Manager {
 
 	public Manager(Application app) {
 		this.app = app;
-
-		playerManager = new DefaultAudioPlayerManager();
-
-		YoutubeAudioSourceManager youtubeManager = new YoutubeAudioSourceManager(true, getConfig().getEmailUsername(), getConfig().getEmailPassword());
-		youtubeManager.setPlaylistPageCount(1000);
-		playerManager.registerSourceManager(youtubeManager);
-
-		playerManager.registerSourceManager(SoundCloudAudioSourceManager.createDefault());
-
-		playerManager.registerSourceManager(new SpotifySourceManager(null,
-				getConfig().getSpotifyClientId(),
-				getConfig().getSpotifyClientSecret(),
-				"US",
-				playerManager
-		));
-
-		playerManager.registerSourceManager(new DeezerAudioSourceManager(
-				getConfig().getDeezerSourceManager()
-		));
-
-		playerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
-
-		AudioSourceManagers.registerRemoteSources(playerManager);
-	}
-
-	public Config getConfig() {
-		return this.app.config;
+		this.playerManager = new ManagerProvider(app).registerDefaultAudioPlayerManager();
 	}
 
 	public AudioPlayer createAudioPlayer(TrackScheduler scheduler) {

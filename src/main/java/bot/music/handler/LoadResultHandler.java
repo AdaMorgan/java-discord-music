@@ -1,10 +1,10 @@
 package bot.music.handler;
 
+import bot.music.TrackScheduler;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import bot.music.TrackScheduler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -29,6 +29,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
 
 	@Override
 	public void noMatches() {
+		this.scheduler.manager.app.logger.atError().log("No matches");
 	}
 
 	@Override
