@@ -10,6 +10,9 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
+import net.dv8tion.jda.api.events.session.ShutdownEvent;
+import net.dv8tion.jda.api.exceptions.RateLimitedException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -67,6 +70,17 @@ public class AudioControlListener extends ListenerAdapter {
 		else
 			event.reply("You are not the owner of this player").setEphemeral(true).queue();
 	}
+//
+//	@Override
+//	public void onReady(ReadyEvent event) {
+//		for (int i = 0; i < 1000; i++) {
+//			event.getJDA().getGuildById(958005823718699008L)
+//					.getTextChannelById(1209932656293187645L)
+//					.sendMessage("Test").queue(info -> {
+//
+//					}, Throwable::printStackTrace);
+//		}
+//	}
 
 	@Override
 	public void onChannelDelete(@NotNull ChannelDeleteEvent event) {

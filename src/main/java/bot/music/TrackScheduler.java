@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
+import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -88,10 +89,6 @@ public class TrackScheduler extends AudioEventAdapter {
 			this.playTrack(queue.get(currentIndex));
 		else
 			next();
-	}
-
-	public String checkAsTag() {
-		return owner.getUser().getAsTag().split("#")[1].equals("0000") ? owner.getUser().getAsTag().split("#")[0] : owner.getUser().getAsTag();
 	}
 
 	public boolean isSeekable() {

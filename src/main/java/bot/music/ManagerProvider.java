@@ -9,7 +9,9 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import net.dv8tion.jda.internal.utils.JDALogger;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.LoggerFactory;
 
 import java.util.stream.Stream;
 
@@ -26,7 +28,6 @@ public class ManagerProvider {
         return Stream.of(new YoutubeAudioSourceManager(true, this.config.getEmailUsername(), this.config.getEmailPassword()))
                 .peek(youtube -> youtube.setPlaylistPageCount(1000))
                 .peek(player::registerSourceManager)
-                .peek(unused -> registerSpotifySourceManage())
                 .peek(unused -> registerSpotifySourceManage())
                 .peek(unused -> registerSoundCloudSourceManage())
                 .peek(unused -> registerDeezerSourceManage())

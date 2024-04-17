@@ -6,7 +6,16 @@ import bot.music.Manager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.messages.MessageData;
+import net.dv8tion.jda.internal.utils.JDALogger;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,3 +46,5 @@ public class Application {
 				.build();
 	}
 }
+
+

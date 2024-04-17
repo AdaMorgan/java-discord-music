@@ -1,5 +1,6 @@
 package bot.music.message;
 
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 public enum ButtonType {

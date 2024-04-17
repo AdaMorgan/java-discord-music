@@ -1,5 +1,7 @@
 package bot.music.message;
 
+import net.dv8tion.jda.api.entities.Message;
+
 import java.awt.*;
 
 public enum ColorType {

@@ -17,8 +17,10 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
@@ -119,7 +121,7 @@ public class StartupListener extends ListenerAdapter {
 
 	private String author(Guild guild) {
 		return Optional.ofNullable(getTrackScheduler(guild))
-				.map(TrackScheduler::checkAsTag)
+				.map(scheduler -> scheduler.owner.getUser().getName())
 				.orElse("Free");
 	}
 
