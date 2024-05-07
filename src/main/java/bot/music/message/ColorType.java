@@ -1,6 +1,8 @@
 package bot.music.message;
 
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 
 import java.awt.*;
 

@@ -8,22 +8,30 @@ import bot.music.message.EmojiType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.channel.ChannelFlag;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
+import net.dv8tion.jda.api.events.channel.update.GenericChannelUpdateEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
+import net.dv8tion.jda.api.events.message.MessageEmbedEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
+import net.dv8tion.jda.api.events.user.GenericUserEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.requests.restaction.ChannelAction;
+import net.dv8tion.jda.api.requests.restaction.order.ChannelOrderAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
+import net.dv8tion.jda.internal.entities.channel.mixin.ChannelMixin;
+import net.dv8tion.jda.internal.utils.message.MessageCreateBuilderMixin;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -32,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public class StartupListener extends ListenerAdapter {
 	private final Application app;
@@ -46,9 +55,10 @@ public class StartupListener extends ListenerAdapter {
 
 	@Override
 	public void onGuildJoin(@NotNull GuildJoinEvent event) {
-		setupGuild(event.getGuild());
-
-		sendMessageEmbed(event.getGuild().getCommunityUpdatesChannel());
+		Stream.of(event.getGuild())
+				.peek(this::setupGuild)
+				.map(Guild::getCommunityUpdatesChannel)
+				.forEach(this::sendMessageEmbed);
 	}
 
 	private void sendMessageEmbed(TextChannel channel) {
@@ -69,6 +79,7 @@ public class StartupListener extends ListenerAdapter {
 		event.getJDA().getPresence().setActivity(activity());
 	}
 
+	@NotNull
 	private Activity activity() {
 		return Activity.listening(String.format("music | %s", app.jda.getGuilds().size()));
 	}
@@ -89,7 +100,7 @@ public class StartupListener extends ListenerAdapter {
 	private void setupGuild(Guild guild) {
 		performForChannel(guild, channel -> {
 			channel.getIterableHistory().queue(messages -> messages.stream()
-					.filter(message -> message.getEmbeds().size() > 0)
+					.filter(message -> !message.getEmbeds().isEmpty())
 					.forEach(message -> message.delete().queue()));
 
 			setupMessage(guild, channel);

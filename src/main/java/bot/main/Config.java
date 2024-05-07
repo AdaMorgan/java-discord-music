@@ -1,7 +1,12 @@
 package bot.main;
 
 import com.moandjiezana.toml.Toml;
+import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.internal.utils.CacheConsumer;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.FileReader;
 
@@ -45,10 +50,12 @@ public class Config {
 	}
 
 	public static Config readFromFile(String path) {
+//		MessageChannel channel;
+		//		channel.sendMessage().queue();
 		try(FileReader reader = new FileReader(path)) {
 			return new Config(new Toml().read(reader));
-		} catch(Exception exception) {
-			throw new RuntimeException("Failed to read config", exception);
+		} catch(Exception error) {
+			throw new RuntimeException(error.getMessage(), error);
 		}
 	}
 }

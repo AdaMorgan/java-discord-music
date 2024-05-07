@@ -11,6 +11,7 @@ import bot.music.handler.SendHandler;
 import bot.music.message.PlayerMessageManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.internal.utils.Checks;
@@ -183,8 +184,17 @@ public class TrackScheduler extends AudioEventAdapter {
 		this.manager.controllers.remove(getChannel().getGuild().getIdLong());
 		message.cleanup();
 		connection = false;
-
+		clear();
 		this.startup.update(this.guild);
+	}
+
+	private void clear() {
+		if (getChannel() instanceof VoiceChannel channel) {
+			channel.getHistory().retrievePast(50).complete()
+					.stream()
+					.filter(message -> message.getAuthor().isBot() && message.getAuthor().getIdLong() == 984514439061590077L)
+					.forEach(message -> message.delete().queue());
+		}
 	}
 
 	@Override
