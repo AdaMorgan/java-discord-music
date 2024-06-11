@@ -6,19 +6,8 @@ import bot.music.Manager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.Region;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.MessageHistory;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.Channel;
-import net.dv8tion.jda.api.entities.channel.ChannelFlag;
-import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
-import net.dv8tion.jda.api.events.session.ReadyEvent;
+import net.dv8tion.jda.api.hooks.IEventManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.utils.messages.MessageData;
-import net.dv8tion.jda.internal.utils.JDALogger;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +29,9 @@ public class Application {
 		this.manager = new Manager(this);
 		this.startup = new StartupListener(this);
 
-		jda = JDABuilder.createDefault(config.getToken())
+		this.jda = JDABuilder.createDefault(config.getToken())
 				.setStatus(OnlineStatus.ONLINE)
 				.enableIntents(GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.MESSAGE_CONTENT)
-
 				.addEventListeners(startup)
 				.addEventListeners(new AudioControlListener(this))
 				.build();

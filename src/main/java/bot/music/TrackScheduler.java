@@ -1,20 +1,19 @@
 package bot.music;
 
+import bot.listener.StartupListener;
+import bot.music.handler.LoadResultHandler;
+import bot.music.handler.SendHandler;
+import bot.music.message.PlayerMessageManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import bot.listener.StartupListener;
-import bot.music.handler.LoadResultHandler;
-import bot.music.handler.SendHandler;
-import bot.music.message.PlayerMessageManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
-import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -192,6 +191,7 @@ public class TrackScheduler extends AudioEventAdapter {
 		if (getChannel() instanceof VoiceChannel channel) {
 			channel.getHistory().retrievePast(50).complete()
 					.stream()
+					.filter(Objects::nonNull)
 					.filter(message -> message.getAuthor().isBot() && message.getAuthor().getIdLong() == 984514439061590077L)
 					.forEach(message -> message.delete().queue());
 		}

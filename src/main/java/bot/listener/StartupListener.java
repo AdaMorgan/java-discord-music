@@ -8,30 +8,23 @@ import bot.music.message.EmojiType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.channel.ChannelFlag;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
-import net.dv8tion.jda.api.events.channel.update.GenericChannelUpdateEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.http.HttpRequestEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
-import net.dv8tion.jda.api.events.message.MessageEmbedEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
-import net.dv8tion.jda.api.events.user.GenericUserEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.requests.restaction.ChannelAction;
-import net.dv8tion.jda.api.requests.restaction.order.ChannelOrderAction;
+import net.dv8tion.jda.api.requests.Route;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
-import net.dv8tion.jda.internal.entities.channel.mixin.ChannelMixin;
-import net.dv8tion.jda.internal.utils.message.MessageCreateBuilderMixin;
-import org.jetbrains.annotations.Contract;
+import net.dv8tion.jda.internal.entities.channel.concrete.ThreadChannelImpl;
+import net.dv8tion.jda.internal.entities.channel.mixin.middleman.MessageChannelMixin;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -63,6 +56,11 @@ public class StartupListener extends ListenerAdapter {
 
 	private void sendMessageEmbed(TextChannel channel) {
 		if (channel != null) channel.sendMessageEmbeds(embedJoin().build()).queue();
+	}
+
+	@Override
+	public void onHttpRequest(HttpRequestEvent event) {
+		super.onHttpRequest(event);
 	}
 
 	@NotNull
