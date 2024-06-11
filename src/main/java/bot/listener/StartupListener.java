@@ -19,12 +19,9 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.requests.Route;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
-import net.dv8tion.jda.internal.entities.channel.concrete.ThreadChannelImpl;
-import net.dv8tion.jda.internal.entities.channel.mixin.middleman.MessageChannelMixin;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;

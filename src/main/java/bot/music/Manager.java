@@ -5,11 +5,6 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
-import net.dv8tion.jda.api.requests.Route;
-import net.dv8tion.jda.internal.entities.UserImpl;
-import net.dv8tion.jda.internal.requests.RestActionImpl;
-import net.dv8tion.jda.internal.requests.WebSocketClient;
-import net.dv8tion.jda.internal.requests.WebSocketCode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
